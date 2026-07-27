@@ -340,13 +340,18 @@ export function measureCvLine(options = {}) {
   let currentLineWords = [];
   let currentLineWidth = 0;
 
-  // Apply a 5.0px safety kerning buffer to prevent subpixel browser DOM wrapping
-  const effectiveLineMaxPx = maxWidthPx - 5.0;
-
   wordTokens.forEach((token) => {
-    if (currentLineWidth + token.widthPx <= effectiveLineMaxPx) {
+    let boundaryOffset = 0;
+    if (currentLineWords.length > 0) {
+      const last = currentLineWords[currentLineWords.length - 1];
+      if (last.segmentIndex !== token.segmentIndex && last.isBold !== token.isBold) {
+        boundaryOffset = 0.65; // HTML DOM element boundary kerning calibration
+      }
+    }
+
+    if (currentLineWidth + token.widthPx + boundaryOffset <= maxWidthPx) {
       currentLineWords.push(token);
-      currentLineWidth += token.widthPx;
+      currentLineWidth += token.widthPx + boundaryOffset;
     } else {
       if (currentLineWords.length > 0) {
         let trimmedWidth = currentLineWidth;
