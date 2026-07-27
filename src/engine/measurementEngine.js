@@ -340,8 +340,11 @@ export function measureCvLine(options = {}) {
   let currentLineWords = [];
   let currentLineWidth = 0;
 
+  // Apply a 5.0px safety kerning buffer to prevent subpixel browser DOM wrapping
+  const effectiveLineMaxPx = maxWidthPx - 5.0;
+
   wordTokens.forEach((token) => {
-    if (currentLineWidth + token.widthPx <= maxWidthPx) {
+    if (currentLineWidth + token.widthPx <= effectiveLineMaxPx) {
       currentLineWords.push(token);
       currentLineWidth += token.widthPx;
     } else {
