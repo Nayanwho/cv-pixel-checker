@@ -7,27 +7,30 @@ export default function ApiIntegrationModal({ isOpen, onClose, theme }) {
 
   if (!isOpen) return null;
 
+  const baseUrl = typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost')
+    ? window.location.origin
+    : 'https://cv-pixel-checker.vercel.app';
+
   const copyToClipboard = (text, key) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(''), 2000);
   };
 
-  const curlExample = `curl -X POST "http://localhost:3000/api/v1/check" \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+  const curlExample = `curl -X POST "${baseUrl}/api/v1/check" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "text": "Led an 18-member sponsorship team to secure ₹4.8L+ from 30+ corporate partners",
+    "text": "Improved fulfilment accuracy by 18% through workflow redesign",
     "maxWidthPx": 599
   }'`;
 
-  const chatGptInstructions = `Draft a one-line CV bullet and validate it through the CV width checker API (http://localhost:3000/api/v1/check). The bullet must remain at or below 599 CSS pixels and should ideally use 98–100% of the available width. After every revision, call the checker again. Do not claim that the bullet fits unless the checker returns fits=true and lineCount=1. Return only the final validated bullet and its measured width.`;
+  const chatGptInstructions = `Draft a one-line CV bullet and validate it through the CV width checker API (${baseUrl}/api/v1/check). The bullet must remain at or below 599 CSS pixels and should ideally use 98–100% of the available width. After every revision, call the checker again. Do not claim that the bullet fits unless the checker returns fits=true and lineCount=1. Return only the final validated bullet and its measured width.`;
 
   const mcpConfig = `{
   "mcpServers": {
     "cv-pixel-checker": {
       "command": "node",
-      "args": ["${window.location.origin ? '/path/to/cv-checker' : '.'}/server/mcpServer.js"]
+      "args": ["${typeof window !== 'undefined' ? window.location.origin : '.'}/server/mcpServer.js"]
     }
   }
 }`;
