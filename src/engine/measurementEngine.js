@@ -455,11 +455,20 @@ export function measureCvLine(options = {}) {
     status = 'underfilled';
   }
 
+  const roundedWidthPx = Math.round(widthPx * 100) / 100;
+  const safeBoundaryPx = Math.round((maxWidthPx - 4.0) * 100) / 100;
+  const fitsSafely = fits && roundedWidthPx <= safeBoundaryPx;
+
   return {
     text: fullText,
     segments,
-    widthPx: Math.round(widthPx * 100) / 100,
+    widthPx: roundedWidthPx,
     maxWidthPx,
+    skynetEquivalentWidthPx: roundedWidthPx,
+    absoluteBoundaryPx: maxWidthPx,
+    safeBoundaryPx,
+    fitsSafely,
+    calibrationProfile: presetId || (maxWidthPx <= 575 ? 'SMALL-A' : 'LARGE-A'),
     remainingPx,
     overflowPx,
     utilisationPct,

@@ -1,0 +1,37 @@
+{
+  "status": "initial_uncalibrated",
+  "timestamp": "2026-07-28T02:38:00.000Z",
+  "modelVersion": "skynet-blackbox-2026-07-v1",
+  "profiles": {
+    "LARGE-A": {
+      "profileId": "LARGE-A",
+      "historicalLimitPx": 599.0,
+      "largestObservedFitPx": 592.12,
+      "smallestObservedWrapPx": 599.0,
+      "estimatedAbsoluteBoundaryPx": 595.56,
+      "uncertaintyPx": 3.44,
+      "recommendedSafeLimitPx": 591.0,
+      "updateClassification": "pending_human_calibration"
+    },
+    "SMALL-A": {
+      "profileId": "SMALL-A",
+      "historicalLimitPx": 559.0,
+      "largestObservedFitPx": 551.2,
+      "smallestObservedWrapPx": 559.0,
+      "estimatedAbsoluteBoundaryPx": 555.1,
+      "uncertaintyPx": 3.9,
+      "recommendedSafeLimitPx": 551.0,
+      "updateClassification": "pending_human_calibration"
+    },
+    "ACADEMIC-WIDE": {
+      "profileId": "ACADEMIC-WIDE",
+      "historicalLimitPx": 677.67,
+      "largestObservedFitPx": 670.0,
+      "smallestObservedWrapPx": 677.67,
+      "estimatedAbsoluteBoundaryPx": 673.83,
+      "uncertaintyPx": 3.83,
+      "recommendedSafeLimitPx": 670.0,
+      "updateClassification": "pending_human_calibration"
+    }
+  }
+}

@@ -8,6 +8,8 @@
     "build": "npm run privacy-check && vite build",
     "start": "node server.js",
     "privacy-check": "node scripts/privacy-check.js",
+    "skynet-calibrate": "node calibration/skynetCalibrate.js",
+    "skynet-drift-check": "node calibration/driftDetector.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "npm run privacy-check && node --test tests/**/*.test.js",
