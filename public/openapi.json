@@ -1,0 +1,327 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CV Pixel Checker Measurement Service API",
+    "description": "High-precision text-width measurement engine for CV bullet points. Measures exact rendered CSS pixel width using B-School standard typography (EB Garamond 9.75pt). Used by AI agents (ChatGPT, Custom GPT Actions, MCP) to iteratively draft and validate CV bullet points until they fit perfectly.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "CV Pixel Checker Support",
+      "url": "https://github.com/adarshnayan/cv-pixel-checker"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Development Server"
+    }
+  ],
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Returns operational status of the service, font loading status, and measurement engine version.",
+        "operationId": "getHealthStatus",
+        "responses": {
+          "200": {
+            "description": "Service health information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "ok",
+                  "service": "cv-pixel-checker",
+                  "version": "1.0.0",
+                  "measurementEngine": "shared",
+                  "fontReady": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/check": {
+      "post": {
+        "summary": "Check rendered pixel width of a single CV bullet point",
+        "description": "Measures the exact rendered width of a CV bullet point using the configured CV font and styling. Returns whether the text fits within the specified pixel limit, its utilisation percentage, overflow or remaining pixels, and character-level overflow diagnostics. Use this tool repeatedly while drafting until the sentence falls within the requested width range (ideally 98-100%).",
+        "operationId": "checkCvLineWidth",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckLineRequest"
+              },
+              "example": {
+                "text": "Led an 18-member sponsorship team to secure ₹4.8L+ from 30+ corporate partners",
+                "maxWidthPx": 599,
+                "style": {
+                  "fontFamily": "EB Garamond",
+                  "fontSizePt": 9.75,
+                  "fontSizePx": 13,
+                  "fontWeight": 400
+                },
+                "targetRange": {
+                  "minimumUtilisationPct": 98,
+                  "maximumUtilisationPct": 100
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Measurement evaluation response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckLineResponse"
+                },
+                "example": {
+                  "text": "Led an 18-member sponsorship team to secure ₹4.8L+ from 30+ corporate partners",
+                  "widthPx": 584.72,
+                  "maxWidthPx": 599,
+                  "remainingPx": 14.28,
+                  "overflowPx": 0,
+                  "utilisationPct": 97.62,
+                  "fits": true,
+                  "targetFit": false,
+                  "status": "underfilled",
+                  "characterCount": 82,
+                  "wordCount": 12,
+                  "lineCount": 1,
+                  "firstOverflowCharacterIndex": null,
+                  "maxFittingPrefix": null,
+                  "overflowText": null,
+                  "lastFittingWord": "partners",
+                  "firstOverflowingWord": null,
+                  "estimatedCharsToRemove": 0,
+                  "estimatedCharsToAdd": 2,
+                  "renderedStyle": {
+                    "fontFamily": "EB Garamond",
+                    "fontSizePt": 9.75,
+                    "fontSizePx": 13,
+                    "fontWeight": 400,
+                    "boldFontWeight": 700,
+                    "letterSpacingPx": 0
+                  },
+                  "measurementVersion": "1.0.0"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/check-batch": {
+      "post": {
+        "summary": "Check rendered pixel widths for a list of candidate CV bullet points",
+        "description": "Evaluates multiple candidate CV bullet points in a single request, returning individual metrics and identifying the best valid candidate closest to full line capacity.",
+        "operationId": "checkCvBatch",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckBatchRequest"
+              },
+              "example": {
+                "maxWidthPx": 599,
+                "candidates": [
+                  {
+                    "id": "candidate-1",
+                    "text": "Led an 18-member sponsorship team to secure ₹4.8L+ from corporate partners"
+                  },
+                  {
+                    "id": "candidate-2",
+                    "text": "Led an 18-member sponsorship team to secure ₹4.8L+ from 30+ corporate partners"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch measurement evaluation response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckBatchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API_KEY"
+      }
+    },
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "example": "ok" },
+          "service": { "type": "string", "example": "cv-pixel-checker" },
+          "version": { "type": "string", "example": "1.0.0" },
+          "measurementEngine": { "type": "string", "example": "shared" },
+          "fontReady": { "type": "boolean", "example": true }
+        },
+        "required": ["status", "service", "version", "measurementEngine", "fontReady"]
+      },
+      "CheckLineRequest": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string", "description": "Text of the CV bullet point, optionally formatted with markdown **bold** or <b>bold</b> tags." },
+          "maxWidthPx": { "type": "number", "default": 599, "description": "Maximum permitted width in CSS pixels." },
+          "presetId": { "type": "string", "description": "Optional preset ID (e.g. preset_internship, preset_extracurricular, preset_academics)." },
+          "segments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "bold": { "type": "boolean" }
+              }
+            }
+          },
+          "style": {
+            "type": "object",
+            "properties": {
+              "fontFamily": { "type": "string", "default": "EB Garamond" },
+              "fontSizePt": { "type": "number", "default": 9.75 },
+              "fontSizePx": { "type": "number", "default": 13 },
+              "fontWeight": { "type": "integer", "default": 400 }
+            }
+          },
+          "targetRange": {
+            "type": "object",
+            "properties": {
+              "minimumUtilisationPct": { "type": "number", "default": 98 },
+              "maximumUtilisationPct": { "type": "number", "default": 100 }
+            }
+          }
+        }
+      },
+      "CheckLineResponse": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "widthPx": { "type": "number" },
+          "maxWidthPx": { "type": "number" },
+          "remainingPx": { "type": "number" },
+          "overflowPx": { "type": "number" },
+          "utilisationPct": { "type": "number" },
+          "fits": { "type": "boolean" },
+          "targetFit": { "type": "boolean" },
+          "status": {
+            "type": "string",
+            "enum": ["underfilled", "optimal", "near-limit", "overflow", "hard-overflow", "multi-line", "invalid-input", "font-error"]
+          },
+          "characterCount": { "type": "integer" },
+          "wordCount": { "type": "integer" },
+          "lineCount": { "type": "integer" },
+          "firstOverflowCharacterIndex": { "type": ["integer", "null"] },
+          "maxFittingPrefix": { "type": ["string", "null"] },
+          "overflowText": { "type": ["string", "null"] },
+          "lastFittingWord": { "type": ["string", "null"] },
+          "firstOverflowingWord": { "type": ["string", "null"] },
+          "estimatedCharsToRemove": { "type": "integer" },
+          "estimatedCharsToAdd": { "type": "integer" },
+          "measurementVersion": { "type": "string" }
+        }
+      },
+      "CheckBatchRequest": {
+        "type": "object",
+        "properties": {
+          "maxWidthPx": { "type": "number", "default": 599 },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "text": { "type": "string" }
+              },
+              "required": ["text"]
+            }
+          }
+        },
+        "required": ["candidates"]
+      },
+      "CheckBatchResponse": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "object",
+            "properties": {
+              "bestCandidateId": { "type": ["string", "null"] },
+              "bestValidCandidateId": { "type": ["string", "null"] },
+              "closestToLimitCandidateId": { "type": ["string", "null"] },
+              "targetRangeMatchFound": { "type": "boolean" },
+              "totalCandidates": { "type": "integer" }
+            }
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CheckLineResponse"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" }
+            },
+            "required": ["code", "message"]
+          }
+        }
+      }
+    }
+  }
+}

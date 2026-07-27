@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cv-pixel-checker
+    env: node
+    buildCommand: npm run build
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: REQUIRE_AUTH
+        value: false
