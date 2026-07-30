@@ -70,7 +70,7 @@ The **CV Measurement Service** transforms the tool into an AI-accessible measure
 {
   "status": "ok",
   "service": "cv-pixel-checker",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "measurementEngine": "shared",
   "fontReady": true
 }
@@ -136,7 +136,7 @@ The **CV Measurement Service** transforms the tool into an AI-accessible measure
     "boldFontWeight": 700,
     "letterSpacingPx": 0
   },
-  "measurementVersion": "1.0.0"
+  "measurementVersion": "1.3.0"
 }
 ```
 
@@ -231,6 +231,15 @@ It exposes `audit_cv_document`, `check_cv_line`, and `check_cv_candidates`. Use
 
 The repository also includes a Codex plugin at `plugins/cv-pixel-checker` and a repo marketplace
 at `.agents/plugins/marketplace.json`.
+
+### Publisher and support
+
+CV Pixel Checker is developed by [Adarsh Nayan](https://www.linkedin.com/in/adarsh-nayan).
+
+- Website: https://cv-pixel-checker.vercel.app/
+- Support and LinkedIn: https://cv-pixel-checker.vercel.app/support.html
+- Privacy: https://cv-pixel-checker.vercel.app/privacy.html
+- Terms: https://cv-pixel-checker.vercel.app/terms.html
 
 ### Local stdio MCP config
 ```json

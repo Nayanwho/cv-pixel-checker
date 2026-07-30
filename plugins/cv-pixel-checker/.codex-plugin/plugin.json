@@ -1,10 +1,10 @@
 {
   "name": "cv-pixel-checker",
-  "version": "1.1.0+codex.20260730082146",
-  "description": "Measures every CV bullet against its rendered layout width in deterministic batches.",
+  "version": "1.3.0+codex.20260730142326",
+  "description": "Audits CV bullets against exact rendered template widths using a deterministic EB Garamond measurement engine.",
   "author": {
-    "name": "Nayanwho",
-    "url": "https://github.com/Nayanwho"
+    "name": "Adarsh Nayan",
+    "url": "https://www.linkedin.com/in/adarsh-nayan"
   },
   "homepage": "https://cv-pixel-checker.vercel.app/",
   "repository": "https://github.com/Nayanwho/cv-pixel-checker",
@@ -19,22 +19,29 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "CV Pixel Checker",
-    "shortDescription": "Audit every CV line at exact rendered width.",
-    "longDescription": "Reads CV bullets from documents, measures the complete set in one MCP batch, preserves per-line layout profiles and formatting, and verifies that no submitted line was skipped.",
-    "developerName": "Nayanwho",
+    "shortDescription": "Exact CV line-width audits",
+    "longDescription": "Measure one CV bullet or audit an entire resume in a deterministic batch using the bundled EB Garamond 9.75 pt renderer. CV Pixel Checker preserves Unicode, punctuation, bold runs, template-specific widths, and source order; reports authoritative CSS-pixel measurements; detects overflow, wrapping, and orphan spillover; and verifies complete document coverage before reporting results.",
+    "developerName": "Adarsh Nayan",
     "category": "Productivity",
     "capabilities": [
-      "Document analysis",
-      "Deterministic measurement",
-      "Batch validation"
+      "Exact CV line-width measurement",
+      "Whole-document batch audits",
+      "Overflow and orphan-line detection",
+      "Validated candidate comparison"
     ],
     "websiteURL": "https://cv-pixel-checker.vercel.app/",
+    "supportURL": "https://cv-pixel-checker.vercel.app/support.html",
+    "privacyPolicyURL": "https://cv-pixel-checker.vercel.app/privacy.html",
+    "termsOfServiceURL": "https://cv-pixel-checker.vercel.app/terms.html",
+    "brandColor": "#4338CA",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png",
     "defaultPrompt": [
       "Audit every bullet in my attached CV.",
       "Rewrite these CV points to fit their exact widths.",
       "Check this resume and report every line that overflows."
     ]
   },
-  "mcpServers": "./.mcp.json",
-  "apps": "./.app.json"
+  "mcpServers": "./.mcp.json"
 }

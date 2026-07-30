@@ -16,6 +16,11 @@ build/
 *.jpeg
 *.jpg
 *.png
+!public/cv-pixel-checker-icon.png
+!plugins/cv-pixel-checker/assets/
+!plugins/cv-pixel-checker/assets/icon.png
+!plugins/cv-pixel-checker/assets/logo.png
+!plugins/cv-pixel-checker/assets/logo-dark.png
 
 # System files
 .DS_Store

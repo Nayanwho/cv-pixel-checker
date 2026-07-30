@@ -8,6 +8,7 @@
     "build": "npm run privacy-check && vite build",
     "start": "node server.js",
     "privacy-check": "node scripts/privacy-check.js",
+    "validate:plugin-submission": "node scripts/validate-plugin-submission.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "npm run privacy-check && node --test tests/**/*.test.js",

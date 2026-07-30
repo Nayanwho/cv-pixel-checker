@@ -31,6 +31,31 @@ test('GET /api/v1/health Returns 200 OK', async () => {
   assert.equal(data.fontReady, true);
 });
 
+test('GET /.well-known/openai-apps-challenge Serves Only the Configured Token', async () => {
+  const originalChallenge = process.env.OPENAI_APPS_CHALLENGE;
+
+  try {
+    delete process.env.OPENAI_APPS_CHALLENGE;
+    const missingResponse = await fetch(`${BASE_URL}/.well-known/openai-apps-challenge`);
+    assert.equal(missingResponse.status, 404);
+
+    process.env.OPENAI_APPS_CHALLENGE = 'openai-domain-verification-test-token';
+    const configuredResponse = await fetch(`${BASE_URL}/.well-known/openai-apps-challenge`);
+    assert.equal(configuredResponse.status, 200);
+    assert.equal(
+      await configuredResponse.text(),
+      'openai-domain-verification-test-token'
+    );
+    assert.match(configuredResponse.headers.get('content-type'), /^text\/plain/);
+  } finally {
+    if (originalChallenge === undefined) {
+      delete process.env.OPENAI_APPS_CHALLENGE;
+    } else {
+      process.env.OPENAI_APPS_CHALLENGE = originalChallenge;
+    }
+  }
+});
+
 test('POST /api/v1/check Evaluates Single Line Width', async () => {
   const res = await fetch(`${BASE_URL}/api/v1/check`, {
     method: 'POST',
