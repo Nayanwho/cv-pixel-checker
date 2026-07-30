@@ -8,12 +8,12 @@ const widthCache = new Map();
 export const MEASUREMENT_VERSION = '1.2.0';
 export const METRICS_PROFILE = 'eb-garamond-9.75pt-template-css-v1';
 
-// The reference Word/PDF template uses an effective 12.96px EB Garamond
-// rendering box for its nominal 9.75pt text. Canvas uses exactly 13px at the
-// CSS 96dpi conversion. Apply the template calibration on every runtime so the
-// browser UI, REST API, and MCP tools all reproduce the reference layout. The
-// Unicode/rupee golden regression locks this contract at 567.50px.
-const TEMPLATE_EB_GARAMOND_WIDTH_SCALE = 0.997;
+// EB Garamond delegates the rupee sign to a platform fallback font. Browser,
+// Node canvas, and the reference Word/PDF template otherwise agree, but their
+// fallback ₹ advance differs. Normalize only that unsupported glyph so ordinary
+// EB Garamond text keeps its native metrics. The golden regression contains two
+// rupee signs and locks the reference-template result at 567.50px.
+const TEMPLATE_RUPEE_ADJUSTMENT_AT_13PX = -0.855;
 
 // Universal preset definitions with Versioned Section Profiles v2.0
 export const CV_PRESETS = [
@@ -353,8 +353,11 @@ export function measureSegmentWidth(
   if (canvasCtx) {
     canvasCtx.font = `${resolvedFontWeight} ${fontSizePx}px ${fontStack}`;
     width = canvasCtx.measureText(text).width;
-    if (fontFamily === 'EB Garamond') {
-      width *= TEMPLATE_EB_GARAMOND_WIDTH_SCALE;
+    if (fontFamily === 'EB Garamond' && text.includes('₹')) {
+      const rupeeCount = Array.from(text).filter(char => char === '₹').length;
+      width += rupeeCount
+        * TEMPLATE_RUPEE_ADJUSTMENT_AT_13PX
+        * (fontSizePx / DEFAULT_STYLE.fontSizePx);
     }
   } else {
     const factor = isBold ? 0.62 : 0.55;

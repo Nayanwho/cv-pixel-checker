@@ -57,6 +57,13 @@ test('Golden regression: ₹, %, ampersands, and slash measure exactly as the li
   assert.equal(result.metricsProfile, 'eb-garamond-9.75pt-template-css-v1');
 });
 
+test('Rupee fallback calibration does not rescale ordinary EB Garamond text', () => {
+  const text = 'Engineered automated data pipelines using Python & SQL, accelerating reporting TAT by 35% & boosting overall efficiency by 28%';
+  const result = measureCvLine({ text, maxWidthPx: 599 });
+
+  assert.equal(result.widthPx, 648.05);
+});
+
 test('Regression Comparison: Direct Engine vs REST API Output (Tolerance <= 0.25 CSS px)', async () => {
   let maxDiff = 0;
 
