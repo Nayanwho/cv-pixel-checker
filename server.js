@@ -102,7 +102,7 @@ app.get('/api/v1/health', (req, res) => {
   return res.json({
     status: 'ok',
     service: 'cv-pixel-checker',
-    version: '1.1.0',
+    version: '1.2.0',
     measurementEngine: 'shared',
     fontReady: status.fontReady
   });

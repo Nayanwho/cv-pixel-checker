@@ -5,6 +5,16 @@ let fontStatus = 'loading'; // 'loading' | 'ready' | 'failed'
 let engineEnvironment = 'unknown'; // 'browser' | 'node'
 const widthCache = new Map();
 
+export const MEASUREMENT_VERSION = '1.2.0';
+export const METRICS_PROFILE = 'eb-garamond-9.75pt-template-css-v1';
+
+// The reference Word/PDF template uses an effective 12.96px EB Garamond
+// rendering box for its nominal 9.75pt text. Canvas uses exactly 13px at the
+// CSS 96dpi conversion. Apply the template calibration on every runtime so the
+// browser UI, REST API, and MCP tools all reproduce the reference layout. The
+// Unicode/rupee golden regression locks this contract at 567.50px.
+const TEMPLATE_EB_GARAMOND_WIDTH_SCALE = 0.997;
+
 // Universal preset definitions with Versioned Section Profiles v2.0
 export const CV_PRESETS = [
   {
@@ -310,7 +320,8 @@ export function getEngineStatus() {
     status: fontStatus,
     fontReady: fontStatus === 'ready',
     environment: engineEnvironment,
-    measurementVersion: '1.1.0'
+    measurementVersion: MEASUREMENT_VERSION,
+    metricsProfile: METRICS_PROFILE
   };
 }
 
@@ -342,6 +353,9 @@ export function measureSegmentWidth(
   if (canvasCtx) {
     canvasCtx.font = `${resolvedFontWeight} ${fontSizePx}px ${fontStack}`;
     width = canvasCtx.measureText(text).width;
+    if (fontFamily === 'EB Garamond') {
+      width *= TEMPLATE_EB_GARAMOND_WIDTH_SCALE;
+    }
   } else {
     const factor = isBold ? 0.62 : 0.55;
     width = text.length * fontSizePx * factor;
@@ -688,7 +702,8 @@ export function measureCvLine(options = {}) {
     },
     fontReady: fontStatus === 'ready',
     measurementEnvironment: engineEnvironment,
-    measurementVersion: '1.1.0'
+    measurementVersion: MEASUREMENT_VERSION,
+    metricsProfile: METRICS_PROFILE
   };
 }
 

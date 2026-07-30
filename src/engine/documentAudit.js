@@ -56,6 +56,7 @@ export async function auditCvDocument({ lines = [] } = {}) {
       duplicateIds.length === 0,
     measurementVersion: engine.measurementVersion,
     measurementEnvironment: engine.environment,
+    metricsProfile: engine.metricsProfile,
     summary: {
       submittedLineCount: lines.length,
       measuredLineCount: results.length,

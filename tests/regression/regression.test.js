@@ -24,6 +24,10 @@ after(() => {
 
 const REGRESSION_SAMPLES = [
   {
+    text: 'Boosted ROIC by 33% & cut quality costs 19% from ₹3.2L to ₹2.6L/month by deploying Six Sigma & lean Kanban',
+    maxWidthPx: 559
+  },
+  {
     text: 'Improved fulfilment accuracy by 18% through workflow redesign',
     maxWidthPx: 599
   },
@@ -36,6 +40,22 @@ const REGRESSION_SAMPLES = [
     maxWidthPx: 599
   }
 ];
+
+test('Golden regression: ₹, %, ampersands, and slash measure exactly as the live template', () => {
+  const text = 'Boosted ROIC by 33% & cut quality costs 19% from ₹3.2L to ₹2.6L/month by deploying Six Sigma & lean Kanban';
+  const result = measureCvLine({ text, maxWidthPx: 559 });
+
+  assert.equal(result.text, text);
+  assert.equal(result.widthPx, 567.5);
+  assert.equal(result.overflowPx, 8.5);
+  assert.equal(result.lineCount, 2);
+  assert.equal(result.lines[1].text, 'Kanban');
+  assert.equal(result.firstOverflowingWord, 'Kanban');
+  assert.equal(result.renderedStyle.fontFamily, 'EB Garamond');
+  assert.equal(result.renderedStyle.fontSizePt, 9.75);
+  assert.equal(result.renderedStyle.fontWeight, 400);
+  assert.equal(result.metricsProfile, 'eb-garamond-9.75pt-template-css-v1');
+});
 
 test('Regression Comparison: Direct Engine vs REST API Output (Tolerance <= 0.25 CSS px)', async () => {
   let maxDiff = 0;

@@ -45,7 +45,7 @@ test('POST /api/v1/check Evaluates Single Line Width', async () => {
   assert.equal(typeof data.widthPx, 'number');
   assert.equal(data.maxWidthPx, 599);
   assert.equal(data.fits, true);
-  assert.equal(data.measurementVersion, '1.1.0');
+  assert.equal(data.measurementVersion, '1.2.0');
 });
 
 test('POST /api/v1/check Validates Invalid Width Parameter', async () => {
@@ -167,6 +167,79 @@ test('POST /mcp Exposes and Executes Whole-Document Audit Tool', async () => {
   assert.equal(callData.result.isError, undefined);
   assert.equal(callData.result.structuredContent.coverageComplete, true);
   assert.equal(callData.result.structuredContent.summary.measuredLineCount, 2);
+});
+
+test('POST /mcp Returns the authoritative golden width without schema errors or font drift', async () => {
+  const text = 'Boosted ROIC by 33% & cut quality costs 19% from ₹3.2L to ₹2.6L/month by deploying Six Sigma & lean Kanban';
+  const response = await fetch(`${BASE_URL}/mcp`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json, text/event-stream',
+      'Content-Type': 'application/json',
+      'MCP-Protocol-Version': '2025-03-26'
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 3,
+      method: 'tools/call',
+      params: {
+        name: 'check_cv_line',
+        arguments: { text, maxWidthPx: 559 }
+      }
+    })
+  });
+
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.result.isError, undefined);
+  assert.equal(data.result.structuredContent.inputText, text);
+  assert.equal(data.result.structuredContent.renderedText, text);
+  assert.equal(data.result.structuredContent.authoritativeWidthPx, 567.5);
+  assert.equal(data.result.structuredContent.widthPx, 567.5);
+  assert.equal(data.result.structuredContent.maxWidthPx, 559);
+  assert.equal(data.result.structuredContent.capacityPt, 419.25);
+  assert.equal(data.result.structuredContent.neededTrimPx, 8.5);
+  assert.equal(data.result.structuredContent.lineCount, 2);
+  assert.equal(data.result.structuredContent.orphanText, 'Kanban');
+  assert.equal(data.result.structuredContent.renderedStyle.fontFamily, 'EB Garamond');
+  assert.equal(data.result.structuredContent.renderedStyle.fontSizePt, 9.75);
+  assert.equal(data.result.structuredContent.renderedStyle.fontWeight, 400);
+  assert.equal(data.result.structuredContent.measurementContract.authoritative, true);
+  assert.equal(data.result.structuredContent.measurementContract.fallbackUsed, false);
+  assert.match(data.result.content[0].text, /AUTHORITATIVE WIDTH: 567\.50 CSS px/);
+  assert.doesNotMatch(data.result.content[0].text, /Arial/i);
+});
+
+test('POST /mcp Candidate comparison preserves the same authoritative measurement contract', async () => {
+  const text = 'Boosted ROIC by 33% & cut quality costs 19% from ₹3.2L to ₹2.6L/month by deploying Six Sigma & lean Kanban';
+  const response = await fetch(`${BASE_URL}/mcp`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json, text/event-stream',
+      'Content-Type': 'application/json',
+      'MCP-Protocol-Version': '2025-03-26'
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 4,
+      method: 'tools/call',
+      params: {
+        name: 'check_cv_candidates',
+        arguments: {
+          candidates: [{ id: 'line-1', text }],
+          maxWidthPx: 559
+        }
+      }
+    })
+  });
+
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.result.isError, undefined);
+  assert.equal(data.result.structuredContent.results[0].inputText, text);
+  assert.equal(data.result.structuredContent.results[0].authoritativeWidthPx, 567.5);
+  assert.equal(data.result.structuredContent.results[0].renderedStyle.fontFamily, 'EB Garamond');
+  assert.doesNotMatch(data.result.content[0].text, /Arial/i);
 });
 
 test('GET /openapi.json Serves OpenAPI Spec', async () => {

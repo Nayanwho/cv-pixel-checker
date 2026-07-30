@@ -24,13 +24,13 @@ export default function ApiIntegrationModal({ isOpen, onClose, theme }) {
     "maxWidthPx": 599
   }'`;
 
-  const chatGptInstructions = `Draft a one-line CV bullet and validate it through the CV width checker API (${baseUrl}/api/v1/check). The bullet must remain at or below 599 CSS pixels and should ideally use 98–100% of the available width. After every revision, call the checker again. Do not claim that the bullet fits unless the checker returns fits=true and lineCount=1. Return only the final validated bullet and its measured width.`;
+  const chatGptInstructions = `Preserve the submitted CV text exactly and validate it through ${baseUrl}/api/v1/check. Treat response.widthPx as authoritative for the returned renderedStyle and metricsProfile. The default renderer is bundled EB Garamond 9.75pt, regular weight 400. Never estimate, recalculate, convert the result to another font, or describe it as Arial. Do not retry a failed single-line check through the batch endpoint. If the API returns an error or fontReady is not true, report that exact measurement is unavailable. For fitting work, require fits=true and lineCount=1 before claiming the line fits.`;
 
   const mcpConfig = `{
   "mcpServers": {
     "cv-pixel-checker": {
-      "command": "node",
-      "args": ["${typeof window !== 'undefined' ? window.location.origin : '.'}/server/mcpServer.js"]
+      "type": "http",
+      "url": "${baseUrl}/mcp"
     }
   }
 }`;

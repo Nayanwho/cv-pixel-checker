@@ -3,7 +3,7 @@
   "info": {
     "title": "CV Pixel Checker Measurement Service API",
     "description": "High-precision text-width measurement engine for CV bullet points. Measures exact rendered CSS pixel width using B-School standard typography (EB Garamond 9.75pt). Used by AI agents (ChatGPT, Custom GPT Actions, MCP) to iteratively draft and validate CV bullet points until they fit perfectly.",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "contact": {
       "name": "CV Pixel Checker Support",
       "url": "https://github.com/Nayanwho/cv-pixel-checker"
@@ -36,7 +36,7 @@
                 "example": {
                   "status": "ok",
                   "service": "cv-pixel-checker",
-                  "version": "1.1.0",
+                  "version": "1.2.0",
                   "measurementEngine": "shared",
                   "fontReady": true
                 }
@@ -111,7 +111,7 @@
                     "boldFontWeight": 700,
                     "letterSpacingPx": 0
                   },
-                  "measurementVersion": "1.1.0"
+                  "measurementVersion": "1.2.0"
                 }
               }
             }
@@ -261,7 +261,7 @@
         "properties": {
           "status": { "type": "string", "example": "ok" },
           "service": { "type": "string", "example": "cv-pixel-checker" },
-          "version": { "type": "string", "example": "1.1.0" },
+          "version": { "type": "string", "example": "1.2.0" },
           "measurementEngine": { "type": "string", "example": "shared" },
           "fontReady": { "type": "boolean", "example": true }
         },
