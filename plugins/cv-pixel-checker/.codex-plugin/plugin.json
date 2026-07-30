@@ -1,6 +1,6 @@
 {
   "name": "cv-pixel-checker",
-  "version": "1.2.0+codex.20260730082146",
+  "version": "1.1.0+codex.20260730082146",
   "description": "Measures every CV bullet against its rendered layout width in deterministic batches.",
   "author": {
     "name": "Nayanwho",
