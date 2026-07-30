@@ -51,6 +51,45 @@
     background: rgba(255, 255, 255, 0.82);
   }
 
+  .brand-mark {
+    position: relative;
+    display: inline-flex;
+    width: 2.45rem;
+    height: 2.45rem;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 0.8rem;
+    background: #4f46e5;
+    box-shadow: 0 8px 22px rgba(79, 70, 229, 0.22);
+  }
+
+  .brand-mark::before,
+  .brand-mark::after {
+    content: '';
+    position: absolute;
+    top: 0.42rem;
+    bottom: 0.42rem;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.42);
+  }
+
+  .brand-mark::before {
+    left: 0.38rem;
+  }
+
+  .brand-mark::after {
+    right: 0.38rem;
+  }
+
+  .brand-mark span {
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: -0.06em;
+  }
+
   .dark .app-nav {
     border-color: rgba(30, 41, 59, 0.86);
     background: rgba(8, 11, 18, 0.82);

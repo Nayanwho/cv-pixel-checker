@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Layers, Sparkles, Sun, Moon, FileText, Bot, ExternalLink } from 'lucide-react';
+import { Layers, Sparkles, Sun, Moon, Bot, Linkedin } from 'lucide-react';
 import ApiIntegrationModal from './ApiIntegrationModal';
 
 export default function Navbar({ activeTab, setActiveTab, theme, setTheme }) {
@@ -38,16 +38,21 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }) {
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between min-h-[68px] gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-slate-950 dark:bg-white flex items-center justify-center flex-shrink-0">
-              <FileText className="w-4 h-4 text-white dark:text-slate-950" />
+            <div className="brand-mark flex-shrink-0" aria-hidden="true">
+              <span>PX</span>
             </div>
             <div className="min-w-0">
               <h1 className="text-sm sm:text-base font-semibold tracking-tight truncate">
                 CV Pixel Checker
               </h1>
-              <p className="text-[11px] text-slate-500 hidden sm:block">
-                Exact rendered-width audit
-              </p>
+              <a
+                href="https://www.linkedin.com/in/adarsh-nayan"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors hidden sm:inline-flex items-center gap-1"
+              >
+                By <strong className="font-semibold">Adarsh Nayan</strong>
+              </a>
             </div>
           </div>
 
@@ -109,11 +114,12 @@ export default function Navbar({ activeTab, setActiveTab, theme, setTheme }) {
               href="https://www.linkedin.com/in/adarsh-nayan"
               target="_blank"
               rel="noopener noreferrer"
-              className="app-icon-button hidden md:inline-flex"
+              className="app-button !border-indigo-500/25 !text-indigo-600 dark:!text-indigo-300 !bg-indigo-500/5 hover:!bg-indigo-500/10"
               aria-label="Open Adarsh Nayan's LinkedIn profile"
-              title="Made by Adarsh Nayan"
+              title="Connect with Adarsh Nayan on LinkedIn"
             >
-              <ExternalLink className="w-4 h-4" />
+              <Linkedin className="w-4 h-4" />
+              <span className="hidden sm:inline">LinkedIn</span>
             </a>
           </div>
         </div>

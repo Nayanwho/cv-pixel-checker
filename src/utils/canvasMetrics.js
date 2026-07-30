@@ -12,7 +12,7 @@ import {
   CV_PRESETS,
   DEFAULT_STYLE,
   DEFAULT_TARGET_RANGE
-} from '../engine/measurementEngine';
+} from '../engine/measurementEngine.js';
 
 let canvasContext = null;
 let fontStatus = 'loading'; // 'loading' | 'ready' | 'failed'
@@ -105,12 +105,17 @@ export function analyzeFormattedSegments(segments, targetLineWidthPt = 449.25, f
     targetLineWidthPx: grossLineWidthPx,
     targetLineWidthPt,
     fillPercentage: result.utilisationPct,
-    lines: result.lineCount === 1 ? [{
-      tokens: result.segments,
-      text: result.text,
-      widthPx: result.widthPx,
-      fillPercentage: result.utilisationPct
-    }] : [],
+    lines: Array.isArray(result.lines) && result.lines.length > 0
+      ? result.lines
+      : [{
+          tokens: result.segments.map(segment => ({
+            text: segment.text || '',
+            isBold: !!segment.bold || (!!segment.fontWeight && segment.fontWeight >= 600)
+          })),
+          text: result.text,
+          widthPx: result.widthPx,
+          fillPercentage: result.utilisationPct
+        }],
     numLines: result.lineCount,
     status: uiStatus,
     statusMessage: uiStatusMessage,

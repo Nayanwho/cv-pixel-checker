@@ -2,49 +2,51 @@ import React from 'react';
 import { PieChart, Type, Hash, Space, Sparkles, Bold } from 'lucide-react';
 
 export default function DensityBreakdown({ metrics, theme }) {
-  const { counts, widths, totalWidthPx } = metrics;
+  const { counts, totalWidthPx } = metrics;
   const isDark = theme === 'dark';
+  const totalChars = Math.max(1, counts.totalChars);
+  const share = (count) => `${((count / totalChars) * 100).toFixed(0)}% of chars`;
 
   const items = [
     {
       label: 'Capital letters',
       value: counts.uppercase,
-      detail: `~${(counts.uppercase * 8.2).toFixed(0)}px`,
+      detail: share(counts.uppercase),
       icon: Type,
       tone: 'text-indigo-500'
     },
     {
       label: 'Small letters',
       value: counts.lowercase,
-      detail: `~${(counts.lowercase * 5.4).toFixed(0)}px`,
+      detail: share(counts.lowercase),
       icon: Type,
       tone: 'text-violet-500'
     },
     {
       label: 'Numbers',
       value: counts.numbers,
-      detail: counts.numbers > 0 ? `~${(widths.numbers || 0).toFixed(1)}px` : 'No footprint',
+      detail: share(counts.numbers),
       icon: Hash,
       tone: 'text-emerald-500'
     },
     {
       label: 'Blank spaces',
       value: counts.spaces,
-      detail: `~${(widths.spaces || 0).toFixed(1)}px`,
+      detail: share(counts.spaces),
       icon: Space,
       tone: 'text-amber-500'
     },
     {
       label: 'Bold characters',
       value: counts.boldChars,
-      detail: `+${((widths.bold || 0) * 0.18).toFixed(1)}px`,
+      detail: share(counts.boldChars),
       icon: Bold,
       tone: 'text-fuchsia-500'
     },
     {
       label: 'Special characters',
       value: counts.specialChars,
-      detail: counts.specialChars > 0 ? `~${(widths.special || 0).toFixed(1)}px` : 'No footprint',
+      detail: share(counts.specialChars),
       icon: Sparkles,
       tone: 'text-rose-500'
     }

@@ -8,6 +8,7 @@ import {
   ensureFontReady,
   getEngineStatus
 } from '../../src/engine/measurementEngine.js';
+import { analyzeFormattedSegments } from '../../src/utils/canvasMetrics.js';
 
 test('CV Measurement Engine Initialization & Font Loading', async () => {
   const ready = await ensureFontReady();
@@ -59,11 +60,39 @@ test('Multi-Line Overflow Detection & Character Diagnostics', () => {
   assert.equal(result.fits, false);
   assert.equal(result.lineCount > 1, true);
   assert.equal(result.status, 'multi-line');
+  assert.equal(result.lines.length, result.lineCount);
+  assert.ok(result.lines.every(line => line.widthPx <= 599));
+  assert.ok(result.lines.every(line => Array.isArray(line.tokens) && line.tokens.length > 0));
+  assert.equal(
+    result.lines.map(line => line.text).join(' ').replace(/\s+/g, ' ').trim(),
+    longText.replace(/\s+/g, ' ').trim(),
+    'Wrapped preview lines must preserve the complete source text'
+  );
   assert.ok(result.firstOverflowCharacterIndex !== null);
   assert.ok(result.maxFittingPrefix !== null);
   assert.ok(result.overflowText !== null);
   assert.ok(result.lastFittingWord !== null);
   assert.ok(result.estimatedCharsToRemove > 0);
+});
+
+test('UI adapter exposes the authoritative wrapped lines to the exact template preview', () => {
+  const longText = 'Implemented Agile Kanban workflows & sprint planning across teams, reducing cycle time by 22% & driving 30% ROI growth';
+  const metrics = analyzeFormattedSegments(
+    [{ text: longText, bold: false }],
+    419.25,
+    9.75,
+    'EB Garamond'
+  );
+
+  assert.equal(metrics.status, 'ORPHAN');
+  assert.equal(metrics.numLines, 2);
+  assert.equal(metrics.lines.length, 2);
+  assert.ok(metrics.lines[0].widthPx <= metrics.targetLineWidthPx);
+  assert.ok(metrics.lines[1].widthPx <= metrics.targetLineWidthPx);
+  assert.equal(
+    metrics.lines.map(line => line.text).join(' ').replace(/\s+/g, ' ').trim(),
+    longText
+  );
 });
 
 test('Batch Candidate Evaluation', () => {

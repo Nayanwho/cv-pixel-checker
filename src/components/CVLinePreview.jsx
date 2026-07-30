@@ -8,7 +8,6 @@ export default function CVLinePreview({ textSegments, preset, metrics, theme }) 
   const isOrphan = status === 'ORPHAN';
   const isHardOverflow = status === 'HARD_OVERFLOW';
   const isNearBrim = status === 'NEAR_BRIM';
-  const isUnderfilled = status === 'UNDERFILLED';
 
   const categoryWidthPx = preset.categoryWidthPt > 0 ? Math.round(preset.categoryWidthPt * (4 / 3)) : 0;
   const yearColumnWidthPx = preset.hasYearColumn ? Math.round((preset.yearColumnWidthPt || 35.0) * (4 / 3)) : 0;
@@ -49,6 +48,9 @@ export default function CVLinePreview({ textSegments, preset, metrics, theme }) 
           )}
           <span className={`text-xs ${isDark ? 'text-slate-400 bg-slate-950 border-slate-800' : 'text-slate-600 bg-slate-100 border-slate-200'} px-2.5 py-1 rounded-lg border font-mono`}>
             {preset.fontSizePt}pt • {targetLineWidthPx.toFixed(1)}px capacity
+          </span>
+          <span className={`text-xs ${isDark ? 'text-slate-300 bg-slate-950 border-slate-800' : 'text-slate-700 bg-slate-100 border-slate-200'} px-2.5 py-1 rounded-lg border font-mono font-semibold`}>
+            {metrics.numLines} rendered line{metrics.numLines > 1 ? 's' : ''}
           </span>
         </div>
       </div>
@@ -105,6 +107,7 @@ export default function CVLinePreview({ textSegments, preset, metrics, theme }) 
                     fontWeight: 700,
                     padding: '4px 6px',
                     lineHeight: `${lineHeightPx}px`,
+                    whiteSpace: 'pre-line',
                     verticalAlign: 'middle'
                   }}
                 >
@@ -162,7 +165,8 @@ export default function CVLinePreview({ textSegments, preset, metrics, theme }) 
                       style={{ 
                         fontFamily: fontInfo.isFallback ? 'Georgia, Garamond, serif' : '"EB Garamond", Garamond, Georgia, serif',
                         fontSize: `${fontSizePx}px`,
-                        lineHeight: `${lineHeightPx}px`
+                        lineHeight: `${lineHeightPx}px`,
+                        minHeight: `${lineHeightPx}px`
                       }}
                     >
                       <span className="whitespace-pre">

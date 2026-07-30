@@ -340,7 +340,14 @@ export default function App() {
       <footer className="border-t border-slate-200/80 dark:border-slate-800/80 py-5 text-xs text-slate-500">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Calibrated for EB Garamond 9.75pt · CSS-pixel accurate</span>
-          <span>Designed by <strong className="font-semibold text-slate-700 dark:text-slate-300">Adarsh Nayan</strong></span>
+          <a
+            href="https://www.linkedin.com/in/adarsh-nayan"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
+          >
+            Designed by <strong className="font-semibold">Adarsh Nayan</strong> · Connect on LinkedIn
+          </a>
         </div>
       </footer>
     </div>
