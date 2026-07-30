@@ -27,6 +27,7 @@ test('GET /api/v1/health Returns 200 OK', async () => {
   const data = await res.json();
   assert.equal(data.status, 'ok');
   assert.equal(data.service, 'cv-pixel-checker');
+  assert.equal(data.version, '1.3.0');
   assert.equal(data.fontReady, true);
 });
 

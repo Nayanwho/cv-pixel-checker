@@ -11,7 +11,8 @@ import {
   measureCvLine,
   measureCvBatch,
   getEngineStatus,
-  ensureFontReady
+  ensureFontReady,
+  MEASUREMENT_VERSION
 } from './src/engine/measurementEngine.js';
 import { auditCvDocument, MAX_DOCUMENT_LINES } from './src/engine/documentAudit.js';
 import { createCvMcpServer } from './server/createMcpServer.js';
@@ -102,7 +103,7 @@ app.get('/api/v1/health', (req, res) => {
   return res.json({
     status: 'ok',
     service: 'cv-pixel-checker',
-    version: '1.2.0',
+    version: MEASUREMENT_VERSION,
     measurementEngine: 'shared',
     fontReady: status.fontReady
   });
