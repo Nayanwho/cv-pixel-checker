@@ -22,13 +22,13 @@ export default function CVLinePreview({ textSegments, preset, metrics, theme }) 
   const totalTableWidthPx = categoryWidthPx + bulletSymbolWidthPx + Math.round(targetLineWidthPx) + yearColumnWidthPx;
 
   return (
-    <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border p-5 shadow-xl transition-colors duration-300`}>
+    <section className="app-panel p-5 sm:p-6" aria-labelledby="template-preview-title">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center space-x-2">
-          <Eye className="w-4 h-4 text-sky-500" />
-          <h2 className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-            Exact CV Template Preview
+          <Eye className="w-4 h-4 text-indigo-500" />
+          <h2 id="template-preview-title" className="text-sm font-semibold">
+            Exact template preview
           </h2>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -54,7 +54,7 @@ export default function CVLinePreview({ textSegments, preset, metrics, theme }) 
       </div>
 
       {/* Visual CV Document Card - Authentic CV Table Rendering */}
-      <div className="bg-white text-slate-900 rounded-xl p-6 border border-slate-300 paper-shadow overflow-x-auto relative min-h-[80px] flex justify-center sm:justify-start">
+      <div className="bg-[#f7f5f0] text-slate-900 rounded-2xl p-5 sm:p-8 border border-stone-200 paper-shadow overflow-x-auto relative min-h-[120px] flex items-center justify-center">
         
         {/* Authentic CV Table Container */}
         <table 
@@ -250,6 +250,6 @@ export default function CVLinePreview({ textSegments, preset, metrics, theme }) 
           </span>
         </div>
       )}
-    </div>
+    </section>
   );
 }

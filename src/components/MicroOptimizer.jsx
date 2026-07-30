@@ -11,7 +11,7 @@ export default function MicroOptimizer({ textSegments, setTextSegments, metrics,
 
   if (status === 'NEAR_BRIM') {
     return (
-      <div className={`${isDark ? 'bg-slate-900 border-emerald-500/30' : 'bg-emerald-50/70 border-emerald-300'} rounded-2xl border p-5 shadow-xl transition-colors duration-300`}>
+      <section className="app-panel p-5 sm:p-6 !border-emerald-500/25">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400 font-bold text-sm">
             <CheckCircle2 className="w-4 h-4" />
@@ -34,7 +34,7 @@ export default function MicroOptimizer({ textSegments, setTextSegments, metrics,
         <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'} mt-1.5 font-medium`}>
           No micro-adjustments needed! This bullet point covers the printable width near brim-to-brim with minimal margin gap.
         </p>
-      </div>
+      </section>
     );
   }
 
@@ -92,11 +92,11 @@ export default function MicroOptimizer({ textSegments, setTextSegments, metrics,
   const validSuggestions = rawCandidates.filter(Boolean);
 
   return (
-    <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border p-5 shadow-xl transition-colors duration-300`}>
+    <section className="app-panel p-5 sm:p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <Wand2 className="w-4 h-4 text-sky-500" />
-          <h3 className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Smart Line Balancer & Micro-Tweaks</h3>
+          <Wand2 className="w-4 h-4 text-indigo-500" />
+          <h3 className="text-sm font-semibold">Smart line balancer</h3>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -129,12 +129,12 @@ export default function MicroOptimizer({ textSegments, setTextSegments, metrics,
         {validSuggestions.map((sug, idx) => (
           <div
             key={idx}
-            className={`flex items-center justify-between p-3 rounded-xl ${
-              isDark ? 'bg-slate-950 border-slate-800 hover:border-sky-500/30' : 'bg-slate-50 border-slate-200 hover:border-sky-400'
+              className={`flex items-center justify-between p-3.5 rounded-xl ${
+              isDark ? 'bg-slate-950/50 border-slate-800 hover:border-indigo-500/30' : 'bg-slate-50/80 border-slate-200 hover:border-indigo-300'
             } border transition-all group`}
           >
             <div>
-              <div className={`text-xs font-bold ${isDark ? 'text-slate-200 group-hover:text-sky-300' : 'text-slate-800 group-hover:text-sky-600'} transition-colors`}>
+                <div className={`text-xs font-semibold ${isDark ? 'text-slate-200 group-hover:text-indigo-300' : 'text-slate-800 group-hover:text-indigo-600'} transition-colors`}>
                 {sug.label}
               </div>
               <div className="flex items-center space-x-2 mt-0.5 text-[11px] font-mono">
@@ -150,7 +150,7 @@ export default function MicroOptimizer({ textSegments, setTextSegments, metrics,
 
             <button
               onClick={sug.apply}
-              className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500 text-sky-600 dark:text-sky-400 hover:text-white border border-sky-500/30 transition-all text-xs font-bold focus-visible:ring-2 focus-visible:ring-sky-500"
+              className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-300 hover:text-white border border-indigo-500/25 transition-all text-xs font-semibold"
               aria-label={`Apply suggestion: ${sug.label}`}
             >
               <span>Apply</span>
@@ -172,6 +172,6 @@ export default function MicroOptimizer({ textSegments, setTextSegments, metrics,
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

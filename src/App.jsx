@@ -7,7 +7,7 @@ import DensityBreakdown from './components/DensityBreakdown';
 import MicroOptimizer from './components/MicroOptimizer';
 import BatchChecker from './components/BatchChecker';
 import { analyzeFormattedSegments, parseTextToSegments, CV_PRESETS, waitForFont, isFontReady } from './utils/canvasMetrics';
-import { Heart, Sliders, Check, RotateCcw } from 'lucide-react';
+import { RotateCcw, Ruler, Type, Columns3, ShieldCheck } from 'lucide-react';
 
 const DEFAULT_SINGLE_SEGMENTS = [
   { text: 'Engineered automated ', bold: false },
@@ -196,135 +196,124 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} flex flex-col font-sans transition-colors duration-300`}>
-      
-      {/* Top Header Navbar */}
+    <div className={`app-shell min-h-screen ${isDark ? 'text-slate-100' : 'text-slate-950'} flex flex-col font-sans transition-colors duration-300`}>
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        selectedPreset={selectedPreset}
-        setSelectedPreset={setSelectedPreset}
         theme={theme}
         setTheme={handleSetTheme}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        
-        {/* Visual CV Section Preset Switcher Toolbar */}
-        <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border p-4 shadow-md transition-colors duration-300`}>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-            <div className="flex items-center space-x-2">
-              <Sliders className="w-4 h-4 text-sky-500" />
-              <span className={`text-xs uppercase font-bold tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Select CV Section Layout
-              </span>
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-10 space-y-5">
+        <section className="flex flex-col xl:flex-row xl:items-end justify-between gap-5">
+          <div className="max-w-2xl">
+            <div className="app-kicker mb-3">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Deterministic CV measurement
             </div>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-[-0.035em] leading-tight">
+              Make every CV line land cleanly.
+            </h2>
+            <p className={`mt-2 text-sm sm:text-base leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+              Paste a bullet, preserve its emphasis, and measure the exact rendered width against your chosen document layout.
+            </p>
+          </div>
 
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleResetDemoData}
-                aria-label="Reset draft data to demo samples"
-                className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all ${
-                  isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
-                } focus-visible:ring-2 focus-visible:ring-sky-500`}
-                title="Reset all fields to sample demo data"
+          <div className="flex items-center gap-2 text-xs">
+            <span className="app-chip">
+              <span className={`w-1.5 h-1.5 rounded-full ${fontLoaded ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+              {fontLoaded ? 'EB Garamond ready' : 'Loading font'}
+            </span>
+            <span className="app-chip">Live measurement</span>
+          </div>
+        </section>
+
+        <section className="app-panel p-4 sm:p-5" aria-labelledby="layout-profile-title">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div className="min-w-0 lg:w-[36%]">
+              <label id="layout-profile-title" htmlFor="layout-profile" className="app-label">
+                Layout profile
+              </label>
+              <select
+                id="layout-profile"
+                value={selectedPreset.id}
+                onChange={(event) => {
+                  const found = CV_PRESETS.find((preset) => preset.id === event.target.value);
+                  if (found) setSelectedPreset(found);
+                }}
+                className="app-select mt-1.5"
               >
-                <RotateCcw className="w-3 h-3 text-sky-500" />
-                <span>Reset Demo Data</span>
-              </button>
-
-              <span className={`text-xs font-mono font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Capacity: <span className="text-sky-500 font-bold">{selectedPreset.lineWidthPt.toFixed(1)}pt ({Math.round(selectedPreset.lineWidthPt * (4/3))}px)</span>
-              </span>
+                {CV_PRESETS.map((preset) => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.name}
+                  </option>
+                ))}
+              </select>
+              <p className={`mt-1.5 text-xs truncate ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+                {selectedPreset.description}
+              </p>
             </div>
+
+            <div className="grid grid-cols-3 flex-1 divide-x divide-slate-200 dark:divide-slate-800 lg:border-l lg:border-slate-200 lg:dark:border-slate-800">
+              <div className="px-3 sm:px-5">
+                <Ruler className="w-4 h-4 text-indigo-500 mb-2" />
+                <div className="app-label">Capacity</div>
+                <div className="text-sm font-semibold font-mono mt-1">
+                  {Math.round(selectedPreset.lineWidthPt * (4 / 3))}px
+                </div>
+              </div>
+              <div className="px-3 sm:px-5">
+                <Type className="w-4 h-4 text-indigo-500 mb-2" />
+                <div className="app-label">Typeface</div>
+                <div className="text-sm font-semibold mt-1">9.75pt</div>
+              </div>
+              <div className="px-3 sm:px-5">
+                <Columns3 className="w-4 h-4 text-indigo-500 mb-2" />
+                <div className="app-label">Columns</div>
+                <div className="text-sm font-semibold mt-1">
+                  {selectedPreset.hasYearColumn ? 'Text + year' : 'Full width'}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={handleResetDemoData}
+              className="app-button app-button-secondary lg:ml-auto"
+              aria-label="Reset draft data to demo samples"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset demo
+            </button>
           </div>
-
-          {/* Quick Preset Selector Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" role="radiogroup" aria-label="CV section layout presets">
-            {CV_PRESETS.map(preset => {
-              const isSelected = selectedPreset.id === preset.id;
-              const pxCapacity = Math.round(preset.lineWidthPt * (4 / 3));
-
-              return (
-                <button
-                  key={preset.id}
-                  onClick={() => setSelectedPreset(preset)}
-                  role="radio"
-                  aria-checked={isSelected}
-                  aria-label={`${preset.name}: ${preset.lineWidthPt.toFixed(1)} pt (${pxCapacity} px capacity)`}
-                  className={`p-3.5 rounded-xl border text-left transition-all relative group focus-visible:ring-2 focus-visible:ring-sky-500 ${
-                    isSelected
-                      ? 'bg-sky-500/10 border-sky-500 ring-2 ring-sky-500/20 text-sky-600 dark:text-sky-300 shadow-sm'
-                      : isDark ? 'bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-200 hover:border-slate-300 text-slate-700'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold truncate pr-1">{preset.name}</span>
-                    {isSelected && <Check className="w-4 h-4 text-sky-500 flex-shrink-0" />}
-                  </div>
-
-                  {/* Minimalist Technical Spec Tag */}
-                  <div className="flex items-center space-x-1.5 mt-1.5">
-                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${
-                      isSelected 
-                        ? 'bg-sky-500/20 text-sky-600 dark:text-sky-300 border-sky-500/30' 
-                        : isDark ? 'bg-slate-900 text-slate-400 border-slate-800' : 'bg-slate-200 text-slate-600 border-slate-300'
-                    }`}>
-                      {preset.lineWidthPt.toFixed(1)}pt • {pxCapacity}px
-                    </span>
-                    <span className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                      {preset.hasYearColumn ? '+Year Col' : 'Full Width'}
-                    </span>
-                  </div>
-
-                  <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-1.5 truncate`}>
-                    {preset.description}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        </section>
 
         {activeTab === 'single' ? (
-          <div id="panel-single" role="tabpanel" aria-labelledby="tab-single" className="space-y-6">
-            {/* Top Grid: Bullet Editor & Live Gauge */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              
-              {/* Left 7 cols: Rich Bullet Point Editor */}
-              <div className="lg:col-span-7 space-y-6">
-                <BulletEditor
-                  textSegments={textSegments}
-                  setTextSegments={setTextSegments}
-                  onSampleLoad={handleSampleLoad}
-                  autoBoldMetrics={autoBoldMetrics}
-                  setAutoBoldMetrics={setAutoBoldMetrics}
-                  theme={theme}
-                />
-
-                {/* Character & Density Footprint Breakdown */}
-                <DensityBreakdown metrics={metrics} theme={theme} />
-              </div>
-
-              {/* Right 5 cols: Live Density Gauge & Micro Optimizer */}
-              <div className="lg:col-span-5 space-y-6">
-                {/* Live Gauge Meter */}
+          <div id="panel-single" role="tabpanel" aria-labelledby="tab-single" className="space-y-5">
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)] gap-5 items-start">
+              <BulletEditor
+                textSegments={textSegments}
+                setTextSegments={setTextSegments}
+                onSampleLoad={handleSampleLoad}
+                autoBoldMetrics={autoBoldMetrics}
+                setAutoBoldMetrics={setAutoBoldMetrics}
+                theme={theme}
+              />
+              <div className="xl:sticky xl:top-[88px]">
                 <LineFillGauge metrics={metrics} theme={theme} />
-
-                {/* Smart Micro Optimizer Suggestions */}
-                <MicroOptimizer
-                  textSegments={textSegments}
-                  setTextSegments={setTextSegments}
-                  metrics={metrics}
-                  preset={selectedPreset}
-                  theme={theme}
-                />
               </div>
-
             </div>
 
-            {/* Full Width CV Document Visual Preview */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+              <MicroOptimizer
+                textSegments={textSegments}
+                setTextSegments={setTextSegments}
+                metrics={metrics}
+                preset={selectedPreset}
+                theme={theme}
+              />
+              <DensityBreakdown metrics={metrics} theme={theme} />
+            </div>
+
             <CVLinePreview
               textSegments={textSegments}
               preset={selectedPreset}
@@ -346,23 +335,14 @@ export default function App() {
             />
           </div>
         )}
-
       </main>
 
-      {/* Footer with Made by Adarsh Nayan Branding */}
-      <footer className={`${isDark ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-600'} border-t py-4 text-center text-xs transition-colors duration-300`}>
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div>
-            CV Line Density & Brim Checker • Calibrated for EB Garamond 9.75pt (B-School Standard)
-          </div>
-          <div className="flex items-center space-x-1.5 font-semibold text-slate-700 dark:text-slate-300">
-            <span>Made with</span>
-            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-pulse" />
-            <span>by <strong className="text-sky-500 font-bold">Adarsh Nayan</strong></span>
-          </div>
+      <footer className="border-t border-slate-200/80 dark:border-slate-800/80 py-5 text-xs text-slate-500">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>Calibrated for EB Garamond 9.75pt · CSS-pixel accurate</span>
+          <span>Designed by <strong className="font-semibold text-slate-700 dark:text-slate-300">Adarsh Nayan</strong></span>
         </div>
       </footer>
-
     </div>
   );
 }

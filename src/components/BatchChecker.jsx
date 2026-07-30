@@ -38,14 +38,14 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
   const overflowCount = results.filter(r => r.metrics.status === 'HARD_OVERFLOW').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Batch Input Textarea */}
-      <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border p-5 shadow-xl transition-colors duration-300`}>
+      <section className="app-panel p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <div className="flex items-center space-x-2">
-            <Layers className="w-4 h-4 text-sky-500" />
-            <label htmlFor="batch-textarea" className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-              Paste Entire CV Section (Multiple Bullets)
+            <Layers className="w-4 h-4 text-indigo-500" />
+            <label htmlFor="batch-textarea" className="text-sm font-semibold">
+              Paste an entire CV section
             </label>
           </div>
 
@@ -74,17 +74,17 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
           placeholder="Paste multiple CV bullet points (one per line, use **bold** or plain text)..."
           rows={6}
           className={`w-full ${
-            isDark ? 'bg-slate-950 text-slate-100 placeholder-slate-500 border-slate-800' : 'bg-slate-50 text-slate-900 placeholder-slate-400 border-slate-200'
-          } border rounded-xl p-3.5 text-xs font-mono focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 leading-relaxed`}
+            isDark ? 'bg-[#0a0f18] text-slate-100 placeholder-slate-600 border-slate-800' : 'bg-[#fafbfc] text-slate-900 placeholder-slate-400 border-slate-200'
+          } border rounded-2xl p-4 sm:p-5 text-xs font-mono focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 leading-relaxed`}
         />
         <div className={`mt-2 text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} flex items-center justify-between`}>
           <span>Tip: You can use <code className="text-sky-600 dark:text-sky-300 font-mono font-bold">**bold text**</code> or paste plain text directly.</span>
         </div>
-      </div>
+      </section>
 
       {/* Audit Summary Header Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="app-panel !shadow-none p-4 flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Optimal Brim (98-100%)</span>
             <span className={`text-2xl font-extrabold ${isDark ? 'text-white' : 'text-slate-900'} font-mono`}>{nearBrimCount}</span>
@@ -92,7 +92,7 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
           <CheckCircle2 className="w-6 h-6 text-emerald-500 flex-shrink-0" />
         </div>
 
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div className="app-panel !shadow-none p-4 flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Underfilled (&lt;98%)</span>
             <span className={`text-2xl font-extrabold ${isDark ? 'text-white' : 'text-slate-900'} font-mono`}>{underfilledCount}</span>
@@ -100,7 +100,7 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
           <AlertTriangle className="w-6 h-6 text-amber-500 flex-shrink-0" />
         </div>
 
-        <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div className="app-panel !shadow-none p-4 flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider block">Orphan Spillover</span>
             <span className={`text-2xl font-extrabold ${isDark ? 'text-white' : 'text-slate-900'} font-mono`}>{orphanCount}</span>
@@ -108,7 +108,7 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
           <AlertCircle className="w-6 h-6 text-rose-500 flex-shrink-0" />
         </div>
 
-        <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div className="app-panel !shadow-none p-4 flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider block">Hard Overflow (&gt;100%)</span>
             <span className={`text-2xl font-extrabold ${isDark ? 'text-white' : 'text-slate-900'} font-mono`}>{overflowCount}</span>
@@ -118,7 +118,7 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
       </div>
 
       {/* Results Matrix */}
-      <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border p-5 shadow-xl space-y-3 transition-colors duration-300`}>
+      <section className="app-panel p-5 sm:p-6 space-y-3">
         <h3 className={`text-xs uppercase font-bold tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-3`}>Line Audit Matrix</h3>
 
         {results.map((res) => {
@@ -136,7 +136,7 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
             <div
               key={res.id}
               className={`p-3.5 ${
-                isDark ? 'bg-slate-950 border-slate-800 hover:border-sky-500/30' : 'bg-slate-50 border-slate-200 hover:border-sky-300'
+                isDark ? 'bg-slate-950/50 border-slate-800 hover:border-indigo-500/30' : 'bg-slate-50/80 border-slate-200 hover:border-indigo-300'
               } rounded-xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group`}
             >
               <div className="flex-1 min-w-0">
@@ -171,7 +171,7 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
                   aria-label={`Inspect line ${res.id} in single line editor`}
                   className={`p-1.5 rounded-lg ${
                     isDark ? 'bg-slate-800 hover:bg-sky-500 text-slate-300 hover:text-white' : 'bg-slate-200 hover:bg-sky-500 text-slate-700 hover:text-white'
-                  } transition-all text-xs font-bold flex items-center space-x-1 focus-visible:ring-2 focus-visible:ring-sky-500`}
+                  } transition-all text-xs font-bold flex items-center space-x-1 focus-visible:ring-2 focus-visible:ring-indigo-500`}
                   title="Inspect and optimize in Single Line Checker"
                 >
                   <span>Edit</span>
@@ -181,7 +181,7 @@ export default function BatchChecker({ preset, onSelectLine, autoBoldMetrics, se
             </div>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 }

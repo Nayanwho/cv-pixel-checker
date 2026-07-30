@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Bold, Eraser, Sparkles, Copy, Check, AlertCircle, Linkedin } from 'lucide-react';
+import { Bold, Eraser, Sparkles, Copy, Check, AlertCircle, TextCursorInput } from 'lucide-react';
 import { parseTextToSegments, parseHTMLToSegments } from '../utils/canvasMetrics';
 
 export default function BulletEditor({ textSegments, setTextSegments, onSampleLoad, autoBoldMetrics, setAutoBoldMetrics, theme }) {
@@ -301,34 +301,26 @@ export default function BulletEditor({ textSegments, setTextSegments, onSampleLo
   };
 
   return (
-    <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border p-5 shadow-xl transition-colors duration-300`}>
-      {/* Editor Controls Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div className="flex flex-wrap items-center justify-between w-full gap-3">
-          <div className="flex items-center space-x-2">
-            <label htmlFor="bullet-textarea" className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-              Bullet Point Input
-            </label>
-            <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Select text & press Bold or Ctrl+B</span>
+    <section className="app-panel p-5 sm:p-6" aria-labelledby="bullet-editor-title">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 flex items-center justify-center">
+            <TextCursorInput className="w-4 h-4" />
           </div>
-
-          {/* LinkedIn Pill Banner pushed further to the right */}
-          <a
-            href="https://www.linkedin.com/in/adarsh-nayan"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center space-x-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-300 border border-sky-500/30 hover:border-sky-500 transition-all font-mono shadow-sm ml-auto"
-            title="Open Adarsh Nayan's LinkedIn Profile"
-          >
-            <Linkedin className="w-3.5 h-3.5 text-sky-500 flex-shrink-0" />
-            <span>www.linkedin.com/in/adarsh-nayan</span>
-          </a>
+          <div>
+            <label id="bullet-editor-title" htmlFor="bullet-textarea" className="text-sm font-semibold">
+              Bullet point
+            </label>
+            <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+              Paste from Word or select text to preserve bold emphasis.
+            </p>
+          </div>
         </div>
 
-        {/* Toolbar buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Auto-detect Bold toggle */}
-          <label className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg ${isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'} border text-xs cursor-pointer select-none font-medium focus-within:ring-2 focus-within:ring-sky-500`}>
+          <label className={`inline-flex items-center gap-2 min-h-[36px] px-3 rounded-xl border text-xs cursor-pointer select-none font-medium focus-within:ring-2 focus-within:ring-indigo-500 ${
+            isDark ? 'bg-slate-950/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+          }`}>
             <input
               type="checkbox"
               checked={autoBoldMetrics}
@@ -336,27 +328,23 @@ export default function BulletEditor({ textSegments, setTextSegments, onSampleLo
               aria-label="Auto-detect metrics and numbers as bold"
               className="rounded border-slate-400 text-sky-500 focus:ring-sky-500/20"
             />
-            <span>Auto-Detect Metrics</span>
+            <span>Auto-bold metrics</span>
           </label>
 
           <button
             onClick={toggleBoldSelection}
             aria-label="Toggle bold for selected text"
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg ${
-              isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200'
-            } text-xs font-bold transition-all border active:scale-95 focus-visible:ring-2 focus-visible:ring-sky-500`}
+            className="app-button"
             title="Toggle Bold for selected text (Ctrl+B / Cmd+B)"
           >
-            <Bold className="w-4 h-4 text-sky-500" />
-            <span>Bold Select</span>
+            <Bold className="w-3.5 h-3.5" />
+            <span>Bold</span>
           </button>
 
           <button
             onClick={copyFormatted}
             aria-label="Copy bullet point text to clipboard"
-            className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg ${
-              isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
-            } text-xs font-medium transition-all border focus-visible:ring-2 focus-visible:ring-sky-500`}
+            className="app-button"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'Copied' : 'Copy'}</span>
@@ -365,9 +353,7 @@ export default function BulletEditor({ textSegments, setTextSegments, onSampleLo
           <button
             onClick={() => updateFromTextAndOverrides('', [])}
             aria-label="Clear bullet input text"
-            className={`p-1.5 rounded-lg ${
-              isDark ? 'bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border-slate-700' : 'bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border-slate-200'
-            } transition-all border focus-visible:ring-2 focus-visible:ring-sky-500`}
+            className="app-icon-button hover:!text-rose-500"
             title="Clear text"
           >
             <Eraser className="w-4 h-4" />
@@ -375,22 +361,20 @@ export default function BulletEditor({ textSegments, setTextSegments, onSampleLo
         </div>
       </div>
 
-      {/* Copy Error or Newline Warning Banner */}
       {copyError && (
-        <div className="mb-3 p-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 rounded-xl text-xs flex items-center space-x-2" role="alert">
+        <div className="mb-3 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-300 rounded-xl text-xs flex items-center gap-2" role="alert">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{copyError}</span>
         </div>
       )}
 
       {newlineNotice && (
-        <div className="mb-3 p-2 bg-sky-500/10 border border-sky-500/30 text-sky-600 dark:text-sky-400 rounded-xl text-xs flex items-center space-x-2" role="status" aria-live="polite">
+        <div className="mb-3 p-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-300 rounded-xl text-xs flex items-center gap-2" role="status" aria-live="polite">
           <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
           <span>Newlines automatically converted to spaces for single-line analysis.</span>
         </div>
       )}
 
-      {/* Main Textarea */}
       <div className="relative">
         <textarea
           id="bullet-textarea"
@@ -400,23 +384,22 @@ export default function BulletEditor({ textSegments, setTextSegments, onSampleLo
           onPaste={handlePaste}
           onKeyDown={handleKeyDown}
           placeholder="Paste or type your CV bullet point here (e.g. Engineered automated data pipelines using Python & SQL, reducing reporting TAT by 35%)..."
-          rows={3}
+          rows={5}
           className={`w-full ${
-            isDark ? 'bg-slate-950 text-slate-100 placeholder-slate-500 border-slate-800' : 'bg-slate-50 text-slate-900 placeholder-slate-400 border-slate-200'
-          } border rounded-xl p-3.5 text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all leading-relaxed font-garamond`}
+            isDark ? 'bg-[#0a0f18] text-slate-100 placeholder-slate-600 border-slate-800' : 'bg-[#fafbfc] text-slate-900 placeholder-slate-400 border-slate-200'
+          } border rounded-2xl p-4 sm:p-5 text-base focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all leading-relaxed font-garamond resize-y min-h-[164px]`}
         />
 
-        {/* Live Bold Formatted Overlay Preview */}
-        <div className={`mt-3 p-3 ${isDark ? 'bg-slate-950/80 border-slate-800/80 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-800'} rounded-xl border text-xs font-garamond min-h-[42px] leading-snug`}>
-          <div className={`text-[10px] uppercase font-sans font-semibold tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'} mb-1`}>
-            Formatting Preview (EB Garamond)
+        <div className={`mt-3 p-4 ${isDark ? 'bg-slate-950/55 border-slate-800/80 text-slate-300' : 'bg-slate-50/80 border-slate-200 text-slate-800'} rounded-2xl border font-garamond min-h-[58px] leading-relaxed`}>
+          <div className="app-label font-sans mb-2">
+            Rendered emphasis
           </div>
-          <div className="flex flex-wrap items-baseline gap-x-0.5 whitespace-pre-wrap">
-            <span className={`${isDark ? 'text-slate-500' : 'text-slate-400'} mr-1.5 select-none`}>■</span>
+          <div className="flex flex-wrap items-baseline whitespace-pre-wrap text-sm">
+            <span className={`${isDark ? 'text-slate-600' : 'text-slate-400'} mr-2 select-none`}>▪</span>
             {textSegments.map((seg, idx) => (
               <span
                 key={idx}
-                className={seg.bold ? `${isDark ? 'text-white bg-sky-500/20' : 'text-slate-950 bg-sky-100'} font-bold px-0.5 rounded` : ''}
+                className={seg.bold ? `${isDark ? 'text-white bg-indigo-500/15' : 'text-slate-950 bg-indigo-50'} font-bold px-0.5 rounded` : ''}
               >
                 {seg.text}
               </span>
@@ -425,54 +408,51 @@ export default function BulletEditor({ textSegments, setTextSegments, onSampleLo
         </div>
       </div>
 
-      {/* Quick Insert Symbols & Test Case Presets */}
-      <div className={`mt-4 pt-3 border-t ${isDark ? 'border-slate-800/60' : 'border-slate-200'} flex flex-wrap items-center justify-between gap-3 text-xs`}>
-        {/* Special Symbols */}
-        <div className="flex items-center space-x-1.5">
-          <span className={`${isDark ? 'text-slate-400' : 'text-slate-500'} font-medium mr-1`}>Quick Symbols:</span>
+      <div className={`mt-5 pt-4 border-t ${isDark ? 'border-slate-800/70' : 'border-slate-200'} flex flex-col gap-4 text-xs`}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="app-label mr-2">Insert</span>
           {['&', '%', '+', ',', '/', '-', '₹', '$', '250+', '300%'].map(sym => (
             <button
               key={sym}
               onClick={() => insertSymbol(sym)}
               aria-label={`Insert symbol ${sym}`}
-              className={`px-2 py-1 rounded ${
-                isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
-              } font-mono text-[11px] border transition-all hover:text-sky-500 focus-visible:ring-2 focus-visible:ring-sky-500`}
+              className={`min-w-[30px] px-2 py-1.5 rounded-lg ${
+                isDark ? 'bg-slate-950/60 hover:bg-slate-800 text-slate-400 border-slate-800' : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+              } font-mono text-[11px] border transition-all hover:text-indigo-500`}
             >
               {sym}
             </button>
           ))}
         </div>
 
-        {/* Sample Bullets */}
-        <div className="flex items-center space-x-1.5">
-          <span className={`${isDark ? 'text-slate-400' : 'text-slate-500'} font-medium mr-1`}>Sample Cases:</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="app-label mr-1">Examples</span>
           <button
             onClick={() => onSampleLoad('orphan1')}
             aria-label="Load sample bullet with orphan spillover"
-            className="px-2.5 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30 transition-all text-[11px] font-semibold focus-visible:ring-2 focus-visible:ring-rose-500"
+            className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/20 transition-colors text-[11px] font-semibold"
             title="Load orphan line overflowing by 1 word"
           >
-            Orphan Spill Ex
+            Orphan spill
           </button>
           <button
             onClick={() => onSampleLoad('perfect1')}
             aria-label="Load sample bullet with perfect brim fit"
-            className="px-2.5 py-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 transition-all text-[11px] font-semibold focus-visible:ring-2 focus-visible:ring-emerald-500"
+            className="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20 transition-colors text-[11px] font-semibold"
             title="Load line that fits brim-to-brim perfectly"
           >
-            Perfect Brim Ex
+            Perfect brim
           </button>
           <button
             onClick={() => onSampleLoad('underfilled1')}
             aria-label="Load sample bullet with underfilled gap"
-            className="px-2.5 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 transition-all text-[11px] font-semibold focus-visible:ring-2 focus-visible:ring-amber-500"
+            className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/20 transition-colors text-[11px] font-semibold"
             title="Load short underfilled line with right gap"
           >
-            Underfilled Ex
+            Underfilled
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
