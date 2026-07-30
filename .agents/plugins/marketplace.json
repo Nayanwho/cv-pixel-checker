@@ -1,0 +1,20 @@
+{
+  "name": "personal",
+  "interface": {
+    "displayName": "CV Tools"
+  },
+  "plugins": [
+    {
+      "name": "cv-pixel-checker",
+      "source": {
+        "source": "local",
+        "path": "./plugins/cv-pixel-checker"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

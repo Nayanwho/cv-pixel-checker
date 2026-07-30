@@ -142,7 +142,37 @@ The **CV Measurement Service** transforms the tool into an AI-accessible measure
 
 ---
 
-### 3. Batch Check Candidates
+### 3. Audit a Complete CV
+`POST /api/v1/audit-document`
+
+Sends every extracted CV line in one request. Each line can carry its own section profile,
+width, style, and bold segments. The response returns `coverageComplete` and matching submitted
+and measured counts so an AI client cannot silently stop after one bullet.
+
+```json
+{
+  "lines": [
+    {
+      "id": "experience-01",
+      "section": "Experience",
+      "text": "Improved fulfilment accuracy by 18% through workflow redesign",
+      "presetId": "PROJECT_DETAILS"
+    },
+    {
+      "id": "academic-01",
+      "section": "Academic achievements",
+      "text": "Ranked in the top 5% of the graduating cohort",
+      "presetId": "ACADEMIC_WITH_YEAR"
+    }
+  ]
+}
+```
+
+The maximum document batch is 200 lines.
+
+---
+
+### 4. Batch Check Candidates
 `POST /api/v1/check-batch`
 
 Evaluates multiple bullet candidates in a single round-trip.
@@ -180,7 +210,7 @@ Evaluates multiple bullet candidates in a single round-trip.
 Provide the following instruction to ChatGPT:
 
 > **Instruction for AI Agent:**  
-> Draft a one-line CV bullet and validate it through the CV width checker API (`POST /api/v1/check` with `maxWidthPx = 599`). The bullet must remain at or below 599 CSS pixels and should ideally use 98–100% of the available width (`targetFit = true`). Read `widthPx`, `utilisationPct`, `status`, `remainingPx`, and `overflowPx`. After every revision, call the checker again. Do not claim that the bullet fits unless the checker returns `fits = true` and `lineCount = 1`. Return only the final validated bullet and its measured width.
+> Extract every intended CV bullet, assign a stable unique ID, and send the entire set in one `auditCvDocument` call. Preserve source order and use the correct profile for each section. Do not claim full coverage unless `fontReady` and `coverageComplete` are true, submitted and measured counts match, and every ID is returned exactly once. Revise all lines needing work, then re-audit the complete revised set in one batch. Never estimate pixel widths.
 
 ### OpenAPI Specification & Docs
 - **OpenAPI 3.1 Spec**: `http://localhost:3000/openapi.json`
@@ -188,11 +218,21 @@ Provide the following instruction to ChatGPT:
 
 ---
 
-## 🛠️ Model Context Protocol (MCP) Server Setup
+## 🛠️ Codex and ChatGPT MCP Setup
 
-The repository includes a native MCP server exposing `check_cv_line` and `check_cv_candidates` tools.
+The production Streamable HTTP MCP server is:
 
-### Claude Desktop Config (`claude_desktop_config.json`)
+```text
+https://cv-pixel-checker.vercel.app/mcp
+```
+
+It exposes `audit_cv_document`, `check_cv_line`, and `check_cv_candidates`. Use
+`audit_cv_document` for attached files or multiple bullets.
+
+The repository also includes a Codex plugin at `plugins/cv-pixel-checker` and a repo marketplace
+at `.agents/plugins/marketplace.json`.
+
+### Local stdio MCP config
 ```json
 {
   "mcpServers": {

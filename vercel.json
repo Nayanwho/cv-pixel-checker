@@ -8,6 +8,10 @@
       "destination": "/api/index.js"
     },
     {
+      "source": "/mcp",
+      "destination": "/api/index.js"
+    },
+    {
       "source": "/openapi.json",
       "destination": "/api/index.js"
     },

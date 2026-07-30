@@ -310,30 +310,37 @@ export function getEngineStatus() {
     status: fontStatus,
     fontReady: fontStatus === 'ready',
     environment: engineEnvironment,
-    measurementVersion: '1.0.0'
+    measurementVersion: '1.1.0'
   };
 }
 
 /**
  * Measure width of text segment in pixels
  */
-export function measureSegmentWidth(text, isBold = false, fontSizePx = 13, fontFamily = 'EB Garamond') {
+export function measureSegmentWidth(
+  text,
+  isBold = false,
+  fontSizePx = 13,
+  fontFamily = 'EB Garamond',
+  fontWeight = 400,
+  boldFontWeight = 700
+) {
   if (!text) return 0;
   initEngine();
 
-  const fontWeight = isBold ? '700' : '400';
+  const resolvedFontWeight = isBold ? boldFontWeight : fontWeight;
   const fontStack = fontStatus === 'ready'
     ? `"${fontFamily}", Garamond, Georgia, serif`
     : `Georgia, "${fontFamily}", Garamond, serif`;
 
-  const cacheKey = `${fontStack}_${fontWeight}_${fontSizePx}_${text}`;
+  const cacheKey = `${fontStack}_${resolvedFontWeight}_${fontSizePx}_${text}`;
   if (widthCache.has(cacheKey)) {
     return widthCache.get(cacheKey);
   }
 
   let width = 0;
   if (canvasCtx) {
-    canvasCtx.font = `${fontWeight} ${fontSizePx}px ${fontStack}`;
+    canvasCtx.font = `${resolvedFontWeight} ${fontSizePx}px ${fontStack}`;
     width = canvasCtx.measureText(text).width;
   } else {
     const factor = isBold ? 0.62 : 0.55;
@@ -342,6 +349,54 @@ export function measureSegmentWidth(text, isBold = false, fontSizePx = 13, fontF
 
   widthCache.set(cacheKey, width);
   return width;
+}
+
+function measureStyledTokensWidth(tokens, style) {
+  if (!tokens.length) return 0;
+
+  const runs = [];
+  for (const token of tokens) {
+    const previous = runs[runs.length - 1];
+    if (previous && previous.isBold === token.isBold) {
+      previous.text += token.text;
+    } else {
+      runs.push({ text: token.text, isBold: token.isBold });
+    }
+  }
+
+  const renderedWidth = runs.reduce(
+    (total, run) => total + measureSegmentWidth(
+      run.text,
+      run.isBold,
+      style.fontSizePx,
+      style.fontFamily,
+      style.fontWeight,
+      style.boldFontWeight
+    ),
+    0
+  );
+  const characterCount = Array.from(tokens.map(token => token.text).join('')).length;
+  return renderedWidth + Math.max(0, characterCount - 1) * style.letterSpacingPx;
+}
+
+function measureStyledPrefixWidth(segments, endIndex, style) {
+  let remaining = endIndex;
+  const prefixTokens = [];
+
+  for (const segment of segments) {
+    if (remaining <= 0) break;
+    const segmentText = segment.text || '';
+    const text = segmentText.slice(0, remaining);
+    if (text) {
+      prefixTokens.push({
+        text,
+        isBold: !!segment.bold || (!!segment.fontWeight && segment.fontWeight >= 600)
+      });
+    }
+    remaining -= segmentText.length;
+  }
+
+  return measureStyledTokensWidth(prefixTokens, style);
 }
 
 /**
@@ -436,6 +491,16 @@ export function measureCvLine(options = {}) {
   const fontSizePt = style.fontSizePt || DEFAULT_STYLE.fontSizePt;
   const fontSizePx = style.fontSizePx || (fontSizePt * (4 / 3));
   const letterSpacingPx = style.letterSpacingPx || 0;
+  const fontWeight = style.fontWeight || DEFAULT_STYLE.fontWeight;
+  const boldFontWeight = style.boldFontWeight || DEFAULT_STYLE.boldFontWeight;
+  const resolvedStyle = {
+    fontFamily,
+    fontSizePt,
+    fontSizePx,
+    fontWeight,
+    boldFontWeight,
+    letterSpacingPx
+  };
 
   const minUtilPct = targetRange.minimumUtilisationPct ?? DEFAULT_TARGET_RANGE.minimumUtilisationPct;
   const maxUtilPct = targetRange.maximumUtilisationPct ?? DEFAULT_TARGET_RANGE.maximumUtilisationPct;
@@ -450,7 +515,6 @@ export function measureCvLine(options = {}) {
 
   let fullText = '';
   const wordTokens = [];
-  const charDetails = [];
 
   segments.forEach((seg, segIdx) => {
     const segText = seg.text || '';
@@ -462,44 +526,31 @@ export function measureCvLine(options = {}) {
     wordsAndSpaces.forEach(item => {
       if (!item) return;
       if (/^\s+$/.test(item)) {
-        const w = measureSegmentWidth(item, isBold, fontSizePx, fontFamily);
-        wordTokens.push({ text: item, isSpace: true, isBold, widthPx: w, segmentIndex: segIdx });
+        wordTokens.push({ text: item, isSpace: true, isBold, segmentIndex: segIdx });
       } else {
         const subTokens = item.split(/(?<=[-\/])/);
         subTokens.forEach(sub => {
           if (!sub) return;
-          const w = measureSegmentWidth(sub, isBold, fontSizePx, fontFamily);
-          wordTokens.push({ text: sub, isSpace: false, isBold, widthPx: w, segmentIndex: segIdx });
+          wordTokens.push({ text: sub, isSpace: false, isBold, segmentIndex: segIdx });
         });
       }
     });
-
-    for (let i = 0; i < segText.length; i++) {
-      const char = segText[i];
-      const charW = measureSegmentWidth(char, isBold, fontSizePx, fontFamily);
-      charDetails.push({
-        char,
-        isBold,
-        widthPx: charW
-      });
-    }
   });
 
   const lines = [];
   let currentLineWords = [];
-  let currentLineWidth = 0;
 
   wordTokens.forEach((token) => {
-    if (currentLineWidth + token.widthPx <= maxWidthPx) {
+    const proposedWords = [...currentLineWords, token];
+    const proposedWidth = measureStyledTokensWidth(proposedWords, resolvedStyle);
+
+    if (proposedWidth <= maxWidthPx || currentLineWords.length === 0) {
       currentLineWords.push(token);
-      currentLineWidth += token.widthPx;
     } else {
       if (currentLineWords.length > 0) {
-        let trimmedWidth = currentLineWidth;
-        const lastToken = currentLineWords[currentLineWords.length - 1];
-        if (lastToken && lastToken.isSpace) {
-          trimmedWidth -= lastToken.widthPx;
-        }
+        const trimmedWords = [...currentLineWords];
+        while (trimmedWords[trimmedWords.length - 1]?.isSpace) trimmedWords.pop();
+        const trimmedWidth = measureStyledTokensWidth(trimmedWords, resolvedStyle);
 
         lines.push({
           tokens: currentLineWords,
@@ -509,21 +560,17 @@ export function measureCvLine(options = {}) {
         });
       }
       if (token.isSpace) {
-        currentLineWidth = 0;
         currentLineWords = [];
       } else {
         currentLineWords = [token];
-        currentLineWidth = token.widthPx;
       }
     }
   });
 
   if (currentLineWords.length > 0) {
-    let trimmedWidth = currentLineWidth;
-    const lastToken = currentLineWords[currentLineWords.length - 1];
-    if (lastToken && lastToken.isSpace) {
-      trimmedWidth -= lastToken.widthPx;
-    }
+    const trimmedWords = [...currentLineWords];
+    while (trimmedWords[trimmedWords.length - 1]?.isSpace) trimmedWords.pop();
+    const trimmedWidth = measureStyledTokensWidth(trimmedWords, resolvedStyle);
 
     lines.push({
       tokens: currentLineWords,
@@ -535,14 +582,10 @@ export function measureCvLine(options = {}) {
 
   const lineCount = lines.length || 1;
   const firstLine = lines[0] || { widthPx: 0, fillPercentage: 0, tokens: [] };
-
-  const totalTextWidthPx = lines.reduce((acc, l) => acc + l.widthPx, 0);
-  const widthPx = lineCount === 1 ? firstLine.widthPx : totalTextWidthPx;
+  const widthPx = measureStyledTokensWidth(wordTokens, resolvedStyle);
 
   const fits = lineCount === 1 && widthPx <= maxWidthPx;
-  const utilisationPct = lineCount === 1 
-    ? Math.round((widthPx / maxWidthPx) * 10000) / 100
-    : Math.round((firstLine.widthPx / maxWidthPx) * 10000) / 100;
+  const utilisationPct = Math.round((widthPx / maxWidthPx) * 10000) / 100;
 
   const remainingPx = fits ? Math.max(0, Math.round((maxWidthPx - widthPx) * 100) / 100) : 0;
   const overflowPx = !fits ? Math.max(0, Math.round((widthPx - maxWidthPx) * 100) / 100) : 0;
@@ -551,16 +594,21 @@ export function measureCvLine(options = {}) {
   let firstOverflowCharacterIndex = null;
   let maxFittingPrefix = null;
   let overflowText = null;
-  let cumulativeCharWidth = 0;
 
-  for (let i = 0; i < charDetails.length; i++) {
-    cumulativeCharWidth += charDetails[i].widthPx;
-    if (cumulativeCharWidth > maxWidthPx) {
-      firstOverflowCharacterIndex = i;
-      maxFittingPrefix = fullText.slice(0, i);
-      overflowText = fullText.slice(i);
-      break;
+  if (widthPx > maxWidthPx) {
+    let low = 0;
+    let high = fullText.length;
+    while (low < high) {
+      const midpoint = Math.floor((low + high + 1) / 2);
+      if (measureStyledPrefixWidth(segments, midpoint, resolvedStyle) <= maxWidthPx) {
+        low = midpoint;
+      } else {
+        high = midpoint - 1;
+      }
     }
+    firstOverflowCharacterIndex = low;
+    maxFittingPrefix = fullText.slice(0, low);
+    overflowText = fullText.slice(low);
   }
 
   let lastFittingWord = null;
@@ -629,15 +677,17 @@ export function measureCvLine(options = {}) {
       fontFamily,
       fontSizePt,
       fontSizePx,
-      fontWeight: style.fontWeight || 400,
-      boldFontWeight: style.boldFontWeight || 700,
+      fontWeight,
+      boldFontWeight,
       letterSpacingPx
     },
     targetRange: {
       minimumUtilisationPct: minUtilPct,
       maximumUtilisationPct: maxUtilPct
     },
-    measurementVersion: '1.0.0'
+    fontReady: fontStatus === 'ready',
+    measurementEnvironment: engineEnvironment,
+    measurementVersion: '1.1.0'
   };
 }
 
@@ -674,10 +724,10 @@ export function measureCvBatch(input = {}) {
     const measurement = measureCvLine({
       text: rawText,
       segments,
-      maxWidthPx,
-      style,
-      targetRange,
-      presetId
+      maxWidthPx: cand.maxWidthPx ?? maxWidthPx,
+      style: { ...style, ...(cand.style || {}) },
+      targetRange: { ...targetRange, ...(cand.targetRange || {}) },
+      presetId: cand.presetId ?? presetId
     });
 
     return {

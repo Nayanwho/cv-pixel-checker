@@ -4,17 +4,16 @@ import { measureCvLine } from '../../src/engine/measurementEngine.js';
 import app from '../../server.js';
 
 let server = null;
-let BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000';
+let BASE_URL = process.env.TEST_BASE_URL || null;
 
 before(async () => {
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/health`);
-    if (res.ok) return;
-  } catch (e) {
-    server = app.listen(0);
-    const port = server.address().port;
-    BASE_URL = `http://127.0.0.1:${port}`;
-  }
+  if (BASE_URL) return;
+  server = await new Promise((resolve, reject) => {
+    const listener = app.listen(0, '127.0.0.1', () => resolve(listener));
+    listener.on('error', reject);
+  });
+  const port = server.address().port;
+  BASE_URL = `http://127.0.0.1:${port}`;
 });
 
 after(() => {

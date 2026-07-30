@@ -1,0 +1,13 @@
+interface:
+  display_name: "Check CV Lines"
+  short_description: "Measure every CV line against exact layout widths"
+  default_prompt: "Use $check-cv-lines to audit every bullet in my attached CV in one batch."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "cv-pixel-checker"
+      description: "Deterministic EB Garamond CV line measurement"
+      transport: "streamable_http"
+      url: "https://cv-pixel-checker.vercel.app/mcp"
+policy:
+  allow_implicit_invocation: true

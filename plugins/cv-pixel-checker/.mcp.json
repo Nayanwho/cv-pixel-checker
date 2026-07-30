@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cv-pixel-checker": {
+      "type": "http",
+      "url": "https://cv-pixel-checker.vercel.app/mcp"
+    }
+  }
+}

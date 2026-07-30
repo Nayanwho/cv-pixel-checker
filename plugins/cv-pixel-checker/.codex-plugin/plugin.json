@@ -1,0 +1,29 @@
+{
+  "name": "cv-pixel-checker",
+  "version": "1.1.0",
+  "description": "Measures every CV bullet against its rendered layout width in deterministic batches.",
+  "author": {
+    "name": "Nayanwho",
+    "url": "https://github.com/Nayanwho"
+  },
+  "homepage": "https://cv-pixel-checker.vercel.app/",
+  "repository": "https://github.com/Nayanwho/cv-pixel-checker",
+  "license": "MIT",
+  "keywords": ["cv", "resume", "pixel-width", "document-audit", "mcp"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "CV Pixel Checker",
+    "shortDescription": "Audit every CV line at exact rendered width.",
+    "longDescription": "Reads CV bullets from documents, measures the complete set in one MCP batch, preserves per-line layout profiles and formatting, and verifies that no submitted line was skipped.",
+    "developerName": "Nayanwho",
+    "category": "Productivity",
+    "capabilities": ["Document analysis", "Deterministic measurement", "Batch validation"],
+    "websiteURL": "https://cv-pixel-checker.vercel.app/",
+    "defaultPrompt": [
+      "Audit every bullet in my attached CV.",
+      "Rewrite these CV points to fit their exact widths.",
+      "Check this resume and report every line that overflows."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

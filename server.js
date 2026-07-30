@@ -5,12 +5,16 @@ import path from 'path';
 import fs from 'fs';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
+import { fileURLToPath } from 'url';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import {
   measureCvLine,
   measureCvBatch,
   getEngineStatus,
   ensureFontReady
 } from './src/engine/measurementEngine.js';
+import { auditCvDocument, MAX_DOCUMENT_LINES } from './src/engine/documentAudit.js';
+import { createCvMcpServer } from './server/createMcpServer.js';
 
 dotenv.config();
 
@@ -40,6 +44,7 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api/', apiLimiter);
+app.use('/mcp', apiLimiter);
 
 // Auth Middleware
 function authenticateApiKey(req, res, next) {
@@ -97,7 +102,7 @@ app.get('/api/v1/health', (req, res) => {
   return res.json({
     status: 'ok',
     service: 'cv-pixel-checker',
-    version: '1.0.0',
+    version: '1.1.0',
     measurementEngine: 'shared',
     fontReady: status.fontReady
   });
@@ -205,6 +210,79 @@ app.post('/api/v1/check-batch', authenticateApiKey, (req, res) => {
   }
 });
 
+// Whole-document CV audit endpoint
+app.post('/api/v1/audit-document', authenticateApiKey, async (req, res) => {
+  try {
+    const { lines } = req.body || {};
+
+    if (!Array.isArray(lines) || lines.length === 0) {
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_LINES',
+          message: 'lines must be a non-empty array.'
+        }
+      });
+    }
+
+    if (lines.length > MAX_DOCUMENT_LINES) {
+      return res.status(400).json({
+        error: {
+          code: 'TOO_MANY_LINES',
+          message: `Maximum document size is ${MAX_DOCUMENT_LINES} lines.`
+        }
+      });
+    }
+
+    const result = await auditCvDocument({ lines });
+    return res.json(result);
+  } catch (err) {
+    if (err?.code === 'FONT_NOT_READY') {
+      return res.status(503).json({
+        error: {
+          code: err.code,
+          message: err.message
+        }
+      });
+    }
+
+    console.error('Error in /api/v1/audit-document:', err);
+    return res.status(500).json({
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred during document audit.'
+      }
+    });
+  }
+});
+
+// Stateless Streamable HTTP MCP endpoint for Codex and ChatGPT plugins
+app.all('/mcp', async (req, res) => {
+  const server = createCvMcpServer();
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true
+  });
+
+  res.on('close', () => {
+    transport.close().catch(() => {});
+    server.close().catch(() => {});
+  });
+
+  try {
+    await server.connect(transport);
+    await transport.handleRequest(req, res, req.body);
+  } catch (error) {
+    console.error('Error in /mcp:', error);
+    if (!res.headersSent) {
+      return res.status(500).json({
+        jsonrpc: '2.0',
+        error: { code: -32603, message: 'Internal MCP server error' },
+        id: null
+      });
+    }
+  }
+});
+
 // Serve static frontend assets from dist/ if built
 const distDir = path.resolve(process.cwd(), 'dist');
 if (fs.existsSync(distDir)) {
@@ -217,13 +295,20 @@ if (fs.existsSync(distDir)) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(`🚀 CV Measurement Service API running on port ${PORT}`);
-  console.log(`📍 Health Check: http://localhost:${PORT}/api/v1/health`);
-  console.log(`📄 OpenAPI Spec: http://localhost:${PORT}/openapi.json`);
-  console.log(`📚 Interactive Docs: http://localhost:${PORT}/docs`);
-  console.log(`====================================================`);
-});
+const isDirectRun =
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isDirectRun) {
+  app.listen(PORT, () => {
+    console.log(`====================================================`);
+    console.log(`🚀 CV Measurement Service API running on port ${PORT}`);
+    console.log(`📍 Health Check: http://localhost:${PORT}/api/v1/health`);
+    console.log(`🤖 MCP Endpoint: http://localhost:${PORT}/mcp`);
+    console.log(`📄 OpenAPI Spec: http://localhost:${PORT}/openapi.json`);
+    console.log(`📚 Interactive Docs: http://localhost:${PORT}/docs`);
+    console.log(`====================================================`);
+  });
+}
 
 export default app;
