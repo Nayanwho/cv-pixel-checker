@@ -45,7 +45,7 @@ test('POST /api/v1/check Evaluates Single Line Width', async () => {
   assert.equal(typeof data.widthPx, 'number');
   assert.equal(data.maxWidthPx, 599);
   assert.equal(data.fits, true);
-  assert.equal(data.measurementVersion, '1.2.0');
+  assert.equal(data.measurementVersion, '1.3.0');
 });
 
 test('POST /api/v1/check Validates Invalid Width Parameter', async () => {

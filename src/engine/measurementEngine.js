@@ -5,15 +5,13 @@ let fontStatus = 'loading'; // 'loading' | 'ready' | 'failed'
 let engineEnvironment = 'unknown'; // 'browser' | 'node'
 const widthCache = new Map();
 
-export const MEASUREMENT_VERSION = '1.2.0';
-export const METRICS_PROFILE = 'eb-garamond-9.75pt-template-css-v1';
+export const MEASUREMENT_VERSION = '1.3.0';
+export const METRICS_PROFILE = 'eb-garamond-9.75pt-template-css-v2';
 
-// EB Garamond delegates the rupee sign to a platform fallback font. Browser,
-// Node canvas, and the reference Word/PDF template otherwise agree, but their
-// fallback ₹ advance differs. Normalize only that unsupported glyph so ordinary
-// EB Garamond text keeps its native metrics. The golden regression contains two
-// rupee signs and locks the reference-template result at 567.50px.
-const TEMPLATE_RUPEE_ADJUSTMENT_AT_13PX = -0.855;
+// The reference CV template renders bold ₹ with its document fallback glyph.
+// Keep that one glyph's advance deterministic in both browser and Node canvas.
+const TEMPLATE_BOLD_RUPEE_ADJUSTMENT_AT_13PX = 3.735;
+const TEMPLATE_REGULAR_RUPEE_ADJUSTMENT_AT_13PX = -0.015;
 
 // Universal preset definitions with Versioned Section Profiles v2.0
 export const CV_PRESETS = [
@@ -356,7 +354,9 @@ export function measureSegmentWidth(
     if (fontFamily === 'EB Garamond' && text.includes('₹')) {
       const rupeeCount = Array.from(text).filter(char => char === '₹').length;
       width += rupeeCount
-        * TEMPLATE_RUPEE_ADJUSTMENT_AT_13PX
+        * (isBold
+          ? TEMPLATE_BOLD_RUPEE_ADJUSTMENT_AT_13PX
+          : TEMPLATE_REGULAR_RUPEE_ADJUSTMENT_AT_13PX)
         * (fontSizePx / DEFAULT_STYLE.fontSizePx);
     }
   } else {
@@ -371,20 +371,10 @@ export function measureSegmentWidth(
 function measureStyledTokensWidth(tokens, style) {
   if (!tokens.length) return 0;
 
-  const runs = [];
-  for (const token of tokens) {
-    const previous = runs[runs.length - 1];
-    if (previous && previous.isBold === token.isBold) {
-      previous.text += token.text;
-    } else {
-      runs.push({ text: token.text, isBold: token.isBold });
-    }
-  }
-
-  const renderedWidth = runs.reduce(
-    (total, run) => total + measureSegmentWidth(
-      run.text,
-      run.isBold,
+  const renderedWidth = tokens.reduce(
+    (total, token) => total + measureSegmentWidth(
+      token.text,
+      token.isBold,
       style.fontSizePx,
       style.fontFamily,
       style.fontWeight,
@@ -556,13 +546,14 @@ export function measureCvLine(options = {}) {
 
   const lines = [];
   let currentLineWords = [];
+  let currentLineWidth = 0;
 
   wordTokens.forEach((token) => {
-    const proposedWords = [...currentLineWords, token];
-    const proposedWidth = measureStyledTokensWidth(proposedWords, resolvedStyle);
+    token.widthPx = measureStyledTokensWidth([token], resolvedStyle);
 
-    if (proposedWidth <= maxWidthPx || currentLineWords.length === 0) {
+    if (currentLineWidth + token.widthPx <= maxWidthPx || currentLineWords.length === 0) {
       currentLineWords.push(token);
+      currentLineWidth += token.widthPx;
     } else {
       if (currentLineWords.length > 0) {
         const trimmedWords = [...currentLineWords];
@@ -578,8 +569,10 @@ export function measureCvLine(options = {}) {
       }
       if (token.isSpace) {
         currentLineWords = [];
+        currentLineWidth = 0;
       } else {
         currentLineWords = [token];
+        currentLineWidth = token.widthPx;
       }
     }
   });
@@ -599,10 +592,15 @@ export function measureCvLine(options = {}) {
 
   const lineCount = lines.length || 1;
   const firstLine = lines[0] || { widthPx: 0, fillPercentage: 0, tokens: [] };
-  const widthPx = measureStyledTokensWidth(wordTokens, resolvedStyle);
+  const measuredWidthPx = lineCount === 1
+    ? firstLine.widthPx
+    : lines.reduce((total, line) => total + line.widthPx, 0);
+  const widthPx = Math.round(measuredWidthPx * 10) / 10;
 
   const fits = lineCount === 1 && widthPx <= maxWidthPx;
-  const utilisationPct = Math.round((widthPx / maxWidthPx) * 10000) / 100;
+  const utilisationPct = lineCount === 1
+    ? Math.round((widthPx / maxWidthPx) * 10000) / 100
+    : Math.round((firstLine.widthPx / maxWidthPx) * 10000) / 100;
 
   const remainingPx = fits ? Math.max(0, Math.round((maxWidthPx - widthPx) * 100) / 100) : 0;
   const overflowPx = !fits ? Math.max(0, Math.round((widthPx - maxWidthPx) * 100) / 100) : 0;
@@ -612,7 +610,11 @@ export function measureCvLine(options = {}) {
   let maxFittingPrefix = null;
   let overflowText = null;
 
-  if (widthPx > maxWidthPx) {
+  if (lineCount > 1) {
+    firstOverflowCharacterIndex = firstLine.text.length;
+    maxFittingPrefix = fullText.slice(0, firstOverflowCharacterIndex);
+    overflowText = fullText.slice(firstOverflowCharacterIndex);
+  } else if (widthPx > maxWidthPx) {
     let low = 0;
     let high = fullText.length;
     while (low < high) {

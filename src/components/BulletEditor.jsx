@@ -387,14 +387,14 @@ export default function BulletEditor({ textSegments, setTextSegments, onSampleLo
           rows={5}
           className={`w-full ${
             isDark ? 'bg-[#0a0f18] text-slate-100 placeholder-slate-600 border-slate-800' : 'bg-[#fafbfc] text-slate-900 placeholder-slate-400 border-slate-200'
-          } border rounded-2xl p-4 sm:p-5 text-base focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all leading-relaxed font-garamond resize-y min-h-[164px]`}
+          } border rounded-2xl p-4 sm:p-5 text-[13px] focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all leading-[1.35] font-garamond resize-y min-h-[164px]`}
         />
 
         <div className={`mt-3 p-4 ${isDark ? 'bg-slate-950/55 border-slate-800/80 text-slate-300' : 'bg-slate-50/80 border-slate-200 text-slate-800'} rounded-2xl border font-garamond min-h-[58px] leading-relaxed`}>
           <div className="app-label font-sans mb-2">
             Rendered emphasis
           </div>
-          <div className="flex flex-wrap items-baseline whitespace-pre-wrap text-sm">
+          <div className="flex flex-wrap items-baseline whitespace-pre-wrap text-[13px]">
             <span className={`${isDark ? 'text-slate-600' : 'text-slate-400'} mr-2 select-none`}>▪</span>
             {textSegments.map((seg, idx) => (
               <span

@@ -104,7 +104,7 @@ export function analyzeFormattedSegments(segments, targetLineWidthPt = 449.25, f
     totalWidthPx: result.widthPx,
     targetLineWidthPx: grossLineWidthPx,
     targetLineWidthPt,
-    fillPercentage: result.utilisationPct,
+    fillPercentage: result.lines[0]?.fillPercentage ?? result.utilisationPct,
     lines: Array.isArray(result.lines) && result.lines.length > 0
       ? result.lines
       : [{

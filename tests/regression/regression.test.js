@@ -54,14 +54,38 @@ test('Golden regression: ₹, %, ampersands, and slash measure exactly as the li
   assert.equal(result.renderedStyle.fontFamily, 'EB Garamond');
   assert.equal(result.renderedStyle.fontSizePt, 9.75);
   assert.equal(result.renderedStyle.fontWeight, 400);
-  assert.equal(result.metricsProfile, 'eb-garamond-9.75pt-template-css-v1');
+  assert.equal(result.metricsProfile, 'eb-garamond-9.75pt-template-css-v2');
 });
 
-test('Rupee fallback calibration does not rescale ordinary EB Garamond text', () => {
+test('Golden regression: manually bolded template line measures 598.7px and stays on one line', () => {
+  const segments = [
+    { text: 'Boosted ROIC by ', bold: false },
+    { text: '33%', bold: true },
+    { text: ' & cut quality costs ', bold: false },
+    { text: '19%', bold: true },
+    { text: ' from ', bold: false },
+    { text: '₹3.2L to ₹2.6L/month', bold: true },
+    { text: ' by deploying lean ', bold: false },
+    { text: 'Six Sigma', bold: true },
+    { text: ' & ', bold: false },
+    { text: 'Kanban', bold: true }
+  ];
+  const result = measureCvLine({ segments, maxWidthPx: 599 });
+
+  assert.equal(result.widthPx, 598.7);
+  assert.equal(result.remainingPx, 0.3);
+  assert.equal(result.lineCount, 1);
+  assert.equal(result.fits, true);
+  assert.equal(result.status, 'optimal');
+  assert.equal(result.lines[0].fillPercentage.toFixed(1), '99.9');
+  assert.equal(result.lines[0].text, segments.map(segment => segment.text).join(''));
+});
+
+test('Token measurement does not rescale ordinary EB Garamond text', () => {
   const text = 'Engineered automated data pipelines using Python & SQL, accelerating reporting TAT by 35% & boosting overall efficiency by 28%';
   const result = measureCvLine({ text, maxWidthPx: 599 });
 
-  assert.equal(result.widthPx, 648.05);
+  assert.equal(result.widthPx, 645.5);
 });
 
 test('Regression Comparison: Direct Engine vs REST API Output (Tolerance <= 0.25 CSS px)', async () => {
